@@ -3,6 +3,7 @@
 actions_service_key
 id_rsa
 build.gradle
+jarvis_key
 
 # Ignore Gradle build output directory
 build
