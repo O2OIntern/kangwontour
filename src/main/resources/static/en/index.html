@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gangwondo Tour</title>
+	<link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,">
+	<link rel="stylesheet" href="css/main.css">
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="https://www.gstatic.com/assistant/interactivecanvas/api/interactive_canvas.min.js"></script>
+	<script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xxef0befba10d74637b27b8d7a8acdd7aa"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src='https://kit.fontawesome.com/a076d05399.js'></script>
+</head>
+<body>
+	<div id="welcome" class="view_full">
+		<div id="startImage">
+		<!--
+			<map name="main">
+				<area shape="poly" coords="243,603,267,589,311,615,345,605,363,639,395,643,407,687,439,701,427,733,459,763,437,787,455,837,423,843,435,889,397,895,391,941,357,941,353,971,399,1041,401,1077,101,1081,102,1033,144,983,160,949,134,933,108,931,96,901,68,883,68,839,48,813,58,783,48,761,64,729,58,693,98,671,98,643,132,627,132,601,176,603,202,579,234,595" title="추천 코스" alt="category1" onclick="service(`category1`)" touchend="service(`category1`)" />
+				<area shape="poly" coords="712,581,818,611,870,745,818,793,914,835,932,931,878,971,918,1023,918,1087,522,1089,522,1011,558,977,516,937,520,839,598,795,590,625,704,583" title="관광지 정보" alt="category2" onclick="service(`category2`)" touchend="service(`category2`)" />
+				<area shape="poly" coords="1101,609,1201,603,1257,659,1267,703,1283,721,1273,733,1251,741,1245,773,1233,789,1219,795,1221,803,1217,803,1235,803,1237,817,1263,819,1277,845,1317,865,1329,899,1329,965,1405,1041,1407,1079,973,1075,973,1077,977,1079,975,1001,1041,969,1043,873,1119,811,1113,753,1085,725,1085,705,1111,679,1085,647,1087,627,1081,607,1089,593,1103,599" title="추천코스2" alt="category3" onclick="service(`category3`)" touchend="service(`category3`)" />
+			</map>
+			-->
+		</div>
+		<div id="sleep" class="option">
+			<img id="sleepimage" src="img/p6-1.png" usemap="#sleep-map" width="1080" height="1920">
+			<map name="sleep-map">
+				<area onclick="sendText('호텔')" alt="호텔" title="호텔" coords="147,456,338,684" shape="rect">
+				<area onclick="sendText('모텔')" alt="모텔" title="모텔" coords="420,455,631,686" shape="rect">
+				<area onclick="sendText('펜션')" alt="펜션" title="펜션" coords="729,451,928,687" shape="rect">
+				<area onclick="sendText('게스트하우스')" alt="게스트하우스" title="게스트하우스"  coords="237,696,498,909" shape="rect">
+				<area onclick="sendText('콘도')" alt="콘도" title="콘도"  coords="586,690,778,912" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" title="이전으로" coords="89,341,151,425" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="eat" class="option">
+			<img id="eatimage" src="img/p12-1.png" usemap="#eat-map" width="1080" height="1920">
+			<map name="eat-map">
+				<area onclick="sendText('아침')" alt="아침" title="아침" coords="133,505,385,794" shape="rect">
+				<area onclick="sendText('점심')" alt="점심" title="점심" coords="429,505,681,796" shape="rect">
+				<area onclick="sendText('저녁')" alt="저녁" title="저녁" coords="728,505,976,799" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" title="이전으로" coords="89,341,151,425" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="tour" class="option">
+			<img id="tourimage" src="img/p17-2.png" usemap="#tour-map" width="1080" height="1920">
+			<map name="tour-map">
+				<area onclick="sendText('액티비티')" alt="액티비티" title="액티비티" coords="87,557,295,819" shape="rect">
+				<area onclick="sendText('힐링')" alt="힐링" title="힐링" coords="332,556,537,820" shape="rect">
+				<area onclick="sendText('전통')" alt="전통" title="전통" coords="572,557,789,822" shape="rect">
+				<area onclick="sendText('쇼핑')" alt="쇼핑" title="쇼핑" coords="810,556,1006,820" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" title="이전으로" coords="83,325,159,439" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="heal" class="option">
+			<img id="healimage" src="img/p17-3.png" usemap="#heal-map" width="1080" height="1920">
+			<map name="heal-map">
+				<area onclick="sendText('자연 속 힐링')" alt="자연 속 힐링" title="자연 속 힐링" coords="169,484,476,882" shape="rect">
+				<area onclick="sendText('문화 속 힐링')" alt="문화 속 힐링" title="문화 속 힐링" coords="591,481,913,889" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" title="이전으로" coords="77,328,164,437" shape="rect">-->
+			</map>
+		</div>
+	</div>
+
+	<!-- 강원도 소개 -->
+	<div id="abt_kw" class="view_full"></div>
+
+	<!-- 지역별 음식 소개 -->
+	<div id="region" class="view_full"></div>
+
+	<!-- 검색리스트 / 상세화면 -->
+	<div id="info" class="view">
+		<div id="info_result">
+			<!-- 지도 -->
+			<div id="info_result_tmapview" class="result-map"></div>
+			<div id="info_result_chara" class="chara">
+				<img id="info_result_chara_image" src="img/p6-2_chara.png" usemap="#chara-map" width="1080" height="360">
+				<map name="chara-map">
+<!--					<area onclick="sendText('이전으로')" alt="이전으로" title="이전으로" coords="33,201,107,308" shape="rect">-->
+				</map>
+			</div>
+			<!-- 지도를 제외하고 상세화면으로 변경 -->
+			<div id="info_result_list" class="result-list">
+				<!-- <div id="info_detail" class="result-list"> -->
+				<!-- <div id="info_detail_title" class="detail-title"></div>
+                <div id="info_detail_image" class="detail_info-img"></div>
+                <div id="info_detail_etc" class="detail-etc"></div>
+                <div id="info_detail_descript" class="detail-descript"></div> -->
+				<!-- </div> -->
+			</div>
+		</div>
+	</div>
+
+	<!-- 추천코스 -->
+	<div id="recommended" class="view_full">
+
+		<div id="reco" class="option">
+			<img id="reco_image" src="img/course1.png" usemap="#step_one-map" width="1080" height="1920">
+			<map name="step_one-map">
+				<area onclick="sendText('힐링')" alt="힐링" coords="130,598,350,873" shape="rect">
+				<area onclick="sendText('문화여행')" alt="문화여행" coords="421,600,646,877" shape="rect">
+				<area onclick="sendText('레저/스포츠')" alt="레저/스포츠" coords="699,599,959,880" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" coords="81,458,160,564" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="reco_step_one_type1" class="option">
+			<img id="reco_step_one_type1_image" src="img/course2-1.png" usemap="#step_two1-map" width="1080" height="1920">
+			<map name="step_two1-map">
+				<area onclick="sendText('알뜰하게')" alt="알뜰하게" coords="214,588,476,856" shape="rect">
+				<area onclick="sendText('욜로')" alt="욜로" coords="619,587,864,861" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" coords="79,456,163,563" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="reco_step_one_type2" class="option">
+			<img id="reco_step_one_type2_image" src="img/course2-3.png" usemap="#step_two2-map" width="1080" height="1920">
+			<map name="step_two2-map">
+				<area onclick="sendText('혼자서')" alt="혼자서" coords="110,602,282,854" shape="rect">
+				<area onclick="sendText('가족이랑')" alt="가족이랑" coords="308,601,500,855" shape="rect">
+				<area onclick="sendText('친구랑')" alt="친구랑" coords="540,600,732,859" shape="rect">
+				<area onclick="sendText('연인이랑')" alt="연인이랑" coords="764,600,964,861" shape="rect">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" coords="83,455,156,557" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="reco_step_two" class="option">
+			<img id="reco_step_two_image" src="img/course3-one.png" usemap="#step_three-map" width="1080" height="1920">
+			<map name="step_three-map">
+<!--				<area onclick="sendText('이전으로')" alt="이전으로" coords="83,455,156,557" shape="rect">-->
+			</map>
+		</div>
+
+		<div id="reco_step_result" class="recommended">
+<!--			<div id="img-container">-->
+<!--				<img id="reco_step_result_image" src="./img/reco_result_1.png" usemap="#tour-map" width="1080" height="1920">-->
+			<div id="reco_step_result_header" class="reco_header">
+				<img src="img/reco_header.png"/>
+			</div>
+<!--			<span onclick="sendText('이전으로')" class="previous"><img src="img/local_food_02.png"/></span>-->
+			<div id="reco_step_result_title" class="reco_title"></div>
+			<div id="reco_step_result_body" class="reco_body">
+				<div id="reco_step_result_line" class="line"></div>
+				<div id="reco_step_result_hashtag" class="hashtag"></div>
+				<center>
+					<div id="reco_step_result_map">
+						<div id="chip1" class="reco_button">Gangneung</div>
+						<div id="chip2" class="reco_button">Goseong</div>
+						<div id="chip3" class="reco_button">Donghae</div>
+						<div id="chip4" class="reco_button">Samcheok</div>
+						<div id="chip5" class="reco_button">Sokcho</div>
+						<div id="chip6" class="reco_button">Yanggu</div>
+						<div id="chip7" class="reco_button">Yangyang</div>
+						<div id="chip8" class="reco_button">Yeongwol</div>
+						<div id="chip9" class="reco_button">Wonju</div>
+						<div id="chip10" class="reco_button">Inje</div>
+						<div id="chip11" class="reco_button">Jeongseon</div>
+						<div id="chip12" class="reco_button">Cheorwon</div>
+						<div id="chip13" class="reco_button">Chuncheon</div>
+						<div id="chip14" class="reco_button">Taebaek</div>
+						<div id="chip15" class="reco_button">Pyeongchang</div>
+						<div id="chip16" class="reco_button">Hongcheon</div>
+						<div id="chip17" class="reco_button">Hwacheon</div>
+						<div id="chip18" class="reco_button">Hoengseong</div>
+					</div>
+				</center>
+			</div>
+<!--			</div>-->
+		</div>
+		
+<!-- 테스트중	-->
+		<div id="reco_step_locale" class="recommended">
+			<div id="reco_step_locale_fixed">
+				<div id="reco_step_locale_header" class="reco_header">
+					<img src="img/reco_step_locale_header.png">
+				</div>
+<!--				<span onclick="sendText('이전으로')" class="previous"><img src="img/local_food_02.png"/></span>-->
+				<div id="reco_step_locale_title" class="reco_title"></div>
+					<div id="reco_step_locale_line" class="line"></div>
+					<div id="reco_step_locale_hashtag" class="hashtag"></div>
+			</div>
+			<div id="reco_step_locale_body">
+				<div id="blank_space">
+	<!--	document.getElementById("blank_space").style.height = `${document.getElementById("reco_step_locale_fixed").clientHeight}px`			-->
+				</div>
+				<div id="reco_step_locale_acco_subject" class="reco_step_locale_subject"></div>
+				<div id="reco_step_locale_acco"></div>
+				<div id="reco_step_locale_course_subject" class="reco_step_locale_subject"></div>
+				<div id="reco_step_locale_buttons">
+					<span id="getNavigation" class="localeButtons"><i class="fas fa-map-marked-alt"></i> Connect to Tmap</span>
+					<span id="getOtherCourse" class="localeButtons" onclick="sendText('more results')"><i class="fas fa-sync"></i> Show other courses</span>
+				</div>
+				<!-- Tmap 출력용 div-->
+				<div id="reco_step_locale_tmapview"></div>
+				<div id="reco_step_locale_course">
+				</div> <!-- reco_step_locale_course -->
+				<div id="lazy_border"></div>
+			</div> <!-- reco_step_locale_body -->
+		</div> <!-- reco_step_locale -->
+
+			<div id="reco_step_detail" class="option"></div>
+
+			<div id="reco_select" class="recommended">
+				<div id="recommend1" onclick="select('recommend1')"></div>
+				<div id="recommend2" onclick="select('recommend2')"></div>
+				<div id="recommend3" onclick="select('recommend3')"></div>
+			</div>
+
+		<div id="reco_result" class="recommended">
+			<div id="reco_result_tmapview" class="result-map"></div>
+			<div class="chara"></div>
+			<div id="reco_result_list" class="result-list"></div>
+		</div>
+		<div id="reco_detail" class="recommended">
+			<!--
+			<div class="modal-background">
+				<div class="modal">
+			-->
+					<div id="reco_detail_image" class="detail-img"></div>
+					<div id="reco_detail_title" class="detail-title-course"></div>
+					<div id="reco_detail_descript" class="detail-descript-course"></div>
+					<div id="reco_detail_sub"></div>
+					<div id="reco_detail_tmapview" class="tmap-map"></div>
+					<div id="reco_detail_etc" class="detail-title2"></div>
+					<div class="tmap-btn"><a id="reco_detail_tmapbtn"></a></div>
+			<!--
+				</div>
+			</div>
+			-->
+		</div>
+		<div id="reco_detail_info" class="recommended">
+			<div id="reco_detail_info_image" class="detail_info-img"></div>
+			<div id="reco_detail_info_title" class="detail-title"></div>
+			<div id="reco_detail_info_etc" class="reco_detail_info-etc"></div>
+			<div id="reco_detail_info_descript" class="reco_detail_info-descript"></div>
+			<div id="reco_detail_info_tmapview" class="tmap-map"></div>
+			<div class="tmap-btn"><a id="reco_detail_tmapbtn2"></a></div>
+			<div class="tmap-btn"><a id="reco_detail_info_tmapbtn"></a></div>
+		</div>
+	</div>
+
+	<!-- 종료화면 -->
+	<div id="endImage" class="modal-container">
+		<div class="modal-background">
+			<div class="modal">
+				<div id="endText"></div>
+			</div>
+		</div>
+	</div>
+	<!-- 외부 링크 연결용 iframe -->
+	<iframe id="externalframe"></iframe>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="js/jquery.rwdImageMaps.min.js"> </script>
+	<script>
+		$(document).ready(function(e) {
+			$('img[usemap]').rwdImageMaps();
+			$("#img").width("100%");
+			$('img[usemap]').mouseenter(function() {
+				$(this).rwdImageMaps();
+				$("#img").width("100%");
+			});
+		});
+	</script>
+	<script src="js/common.js"></script>
+	<script src="js/fallback.js"></script>
+	<script src="js/recommend.js"></script>
+	<script src="js/mycourse.js"></script>
+	<script src="js/info.js"></script>
+	<script src="js/action.js"></script>
+	<script src="js/main.js"></script>
+</body>
+</html>
