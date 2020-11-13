@@ -447,12 +447,12 @@ function dataplace(data) {
     let place = '32';
     console.log(`input = ${data}`);
     if(data) {
-        for(let i = 0; i < 18; i++){
-            if(data.includes(places[i])) place = `${i + 1}`;
+        for(let i = 0; i < 18; i++){ //18개 지역
+            if(data.includes(places[i])) place = `${i + 1}`; //data가 place 중에 하나를 갖고 있으면 place 에 해당 지역 코드 넣기
         }
     }
     console.log(`dataplace results -> input : ${data}, sigungucode : ${place}`);
-    return place;
+    return place; //코드 리턴
 }
 
 // function datacourse(data) {

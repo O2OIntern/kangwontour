@@ -368,6 +368,9 @@ async function info_result_view(data) {
 			else if(data.tour) data.tour = "관광지";
 			smalltype = putsmalltype(data);
 
+		} else if (data.tour === "촬영 명소") {
+			const URL = "https://actions.o2o.kr/devsvr4/film";
+			await fetch(URL).then(response => response.json()).then(data => result = data);
 		} else {
 			result = await tourAPI("지역검색", data);
 		}
@@ -376,13 +379,21 @@ async function info_result_view(data) {
 		// type = datatype(data);
 		// let myObj = await tourAPI("지역검색", data);
 
-		smalltype.forEach(word => {
+		if(data.tour === "촬영 명소") {
 			result.forEach(element => {
-				if(element.cat3 === word && element.mapx) {
+				if(element.mapx)
 					myObj.push(element);
-				}
+			})
+		} else {
+			smalltype.forEach(word => {
+				result.forEach(element => {
+					if(element.cat3 === word && element.mapx) {
+						myObj.push(element);
+					}
+				});
 			});
-		});
+		}
+
 		console.log("myObj length >>> " + myObj.length);
 		return myObj;
 	}
@@ -1186,7 +1197,7 @@ function info_result_option_tour_view(data) {
 	tourQuestion.setAttribute("class", "question");
 	tourDiv.appendChild(tourQuestion);
 
-	let tourImage = [{"액티비티":"./img/icon/activities.png"}, {"힐링":"./img/icon/healing.png"}, {"전통":"./img/icon/traditional.png"}, {"쇼핑":"./img/icon/shopping.png"}];
+	let tourImage = [{"액티비티":"./img/icon/activities.png"}, {"힐링":"./img/icon/healing.png"}, {"전통":"./img/icon/traditional.png"}, {"쇼핑":"./img/icon/shopping.png"}, {"촬영 명소":"./img/icon/filming.png"}];
 	for (let i=0; i<tourImage.length; i++){
 		const optionContainer = document.createElement("div");
 		optionContainer.setAttribute("class", "selectionBox tourBox");

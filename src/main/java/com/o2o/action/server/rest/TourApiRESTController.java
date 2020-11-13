@@ -220,6 +220,15 @@ public class TourApiRESTController {
 
         return result;
     }
+
+    @GetMapping(value = "/film")
+    public List<KtourApi> getAttractionByFilm() {
+
+        List<KtourApi> result = ktourapiRepository.findByfilm("1");
+
+        System.out.println(result);
+        return result;
+    }
 }
 
 

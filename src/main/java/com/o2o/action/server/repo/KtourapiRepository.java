@@ -40,4 +40,5 @@ public interface KtourapiRepository extends CrudRepository<KtourApi, Long> {
     public List<Map<String, Integer>> queryCountBySigungucode(List<String> theme);
     @Query(value = "select * from public.ktour_api where sigungucode = :sigungucode and category in (:accType)", nativeQuery = true)
     public List<KtourApi> queryAccoBySigungucodeAndTheme(String sigungucode, List<String> accType);
+    public List<KtourApi> findByfilm(String film);
 }

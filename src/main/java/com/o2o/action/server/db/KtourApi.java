@@ -32,6 +32,7 @@ public class KtourApi implements Comparable<KtourApi> {
     String tel;
     String category;
     String lang;
+    String film;
 
     @Transient
     double distance;
@@ -171,5 +172,13 @@ public class KtourApi implements Comparable<KtourApi> {
         else if (distance < o.distance)
             return -1;
         return 0;
+    }
+
+    public String getFilm() {
+        return film;
+    }
+
+    public void setFilm(String film) {
+        this.film = film;
     }
 }
