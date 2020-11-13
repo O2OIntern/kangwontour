@@ -32,6 +32,9 @@ let existing_course;
 
 let reco_tmaplink;
 
+const placesSi = ['강릉시', '고성시', '동해시', '삼척시', '속초시', '양구시', '양양시', '영월시', '원주시', '인제시', '정선시', '철원시', '춘천시', '태백시', '평창시', '홍천시', '화천시', '횡성시'];
+
+
 /**
  * "recommended" class에 해당하는 모든 div 숨기기
  */
@@ -631,6 +634,7 @@ async function reco_step_two_view(data){
 	}
 
 	clear_reco_array();
+	//TODO makeCourse 함수(기존 추천코스 로직) 쓰지 않고 새로운 로직으로 변경시 여기서부터 677번째 줄 까지 필요 없음
 	existing_course = [];
 
 	smallCategories = [];
@@ -701,8 +705,7 @@ const reco_step_result_view = async (data) => {
 		attr = 9;
 	}
 
-	//TODO 관광지 지역별 counting 해서 attr(개수) 보다 크면 지역 버튼 파란색 / 아니면 회색 처리
-
+	//TODO 주석 처리 해야함(706~716)
 	for (let i = 0; i < 18; i++){ //모든 지역(18개)을 돌면서 랜덤으로 관광지
 		let selector = random_number(0, resultidreco[i].length - 1); //min ~ max 사이의 random number
 		if(resultidreco[i][selector]){ //해당 지역의 [selector] 번째 관광지가 있다면
@@ -715,15 +718,14 @@ const reco_step_result_view = async (data) => {
 		}
 	}
 
-	// console.log(distribution);
+	//TODO 주석 처리 풀어야 함(719~733)
+	//
 	// const URL = "https://actions.o2o.kr/devsvr4/sigungu/count?theme=" + data.course_type;
 	//
 	// let result;
 	// await fetch(URL).then(response => response.json()).then(data => result = data);
 	// console.log(result);
-	//
-	let chips = ``;
-	//
+	// let chips = ``;
 	// for(var sigungucode in result) {
 	// 	if (result[sigungucode] > attr) {
 	// 		chips += `<div onclick="sendText('${places[sigungucode - 1]}')" id="chip${sigungucode}" class="reco_button exists">${places[sigungucode - 1]}</div>`;
@@ -732,7 +734,9 @@ const reco_step_result_view = async (data) => {
 	// 		chips += `<div id="chip${sigungucode}" class="reco_button">${places[sigungucode - 1]}</div>`;
 	// 	}
 	// }
-	//
+
+	//TODO 주석 처리 해야함(736~744)
+	let chips = ``;
 	for (let i = 0; i < 18; i++){
 		if(distribution[i]) { //지역의 관광지가 뽑혔다면 지역 버튼 파란색으로 생성
 			chips += `<div onclick="sendText('${places[i]}')" id="chip${i + 1}" class="reco_button exists">${places[i]}</div>`;
@@ -783,8 +787,7 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	document.getElementById("reco_step_locale_title").innerHTML = title;
 	document.getElementById("reco_step_locale_hashtag").innerHTML = hashtag;
 
-	//추천코스 가져옴
-	//TODO 스케줄러 fetch 해서 쓰기
+	//TODO 스케줄러 fetch 해서 쓰기 -> 주석 풀어야함(아직 request 제대로 가는지 확인 못함! 확인 해야함!!)
 
 	// function timeForm(date) {
 	//
@@ -822,7 +825,7 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	// const periArr = ["당일치기", "1박2일", "2박3일"];
 	// const partArr = ["eight", "seven", "six", "five"];
 	//
-	// let destination = places.indexOf(data.place) + 1; //places array 에서 해당 지역 이름 찾아 번호로 변환
+	// let destination = placesSi.indexOf(data.place) + 1; //placesSi array 에서 해당 지역 이름 찾아 번호로 변환
 	// let partner = partArr.indexOf(data.course_type) == -1 ? "" : partArr.indexOf(data.course_type) + 1; //파트너 설정이 필요없으면(one~four) blank
 	// let budget = "99999999"; //임시
 	// let period = periArr.indexOf(data.question_three); //여행기간(1일~3일)
@@ -868,8 +871,10 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	// 	console.log('Error:', err);
 	// });
 
+	//TODO 주석 처리 해야함 (기존 추천 코스)
 	let course = await makeCourse(data, rerun);
 
+	//TODO 이 아래서부터 새로운 로직에 대한 response 에 맞춰 변경해야함
 	resultidreco_info = course;
 	reco_tmaplink = course.tmaplink; //티맵 링크
 	let accommodations = "";
@@ -881,8 +886,16 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	let pdata = [];
 
 	document.getElementById("getNavigation").setAttribute("onclick", `goToPage('${course.tmaplink}')`);
-	if(course.acco.length) {
-		course.acco.forEach((word, i) => {
+
+	//TODO 숙소 불러오는 부분은 수정하였음!
+	const URL = "https://actions.o2o.kr/devsvr4/sigungu/accommodation?sigungucode=" + placesSi.indexOf(data.place) + 1 + "&theme=" + data.course_type;
+
+	let accoList;
+	await fetch(URL).then(response => response.json()).then(data => accoList = data);
+	console.log(accoList);
+
+	if(accoList.length) { //숙소가 있으면
+		accoList.forEach((word, i) => {
 			let imgURL = word.firstimage ? replaceimage(word.firstimage) : "./img/icon/noimage.png"; //숙소 이미지 확인
 			//숙소 선택 부분 (@intent RECOMMEND_COURSE_DETAIL)
 			accommodations += `
@@ -892,7 +905,7 @@ const reco_step_locale_view = async (data, rerun = false) => {
 				</div>
 				<div class="localeAcco-disc">
 					<div class="acco acconame">${word.title}</div>
-					<div class="acco accocat">${word.type}</div>
+					<div class="acco accocat">${word.category}</div>
 					<div class="acco accoaddr">${word.addr1}</div>
 				</div>
 			</div>
@@ -902,6 +915,7 @@ const reco_step_locale_view = async (data, rerun = false) => {
 		accommodations = `해당 코스에 맞는 숙박 시설을 찾지 못했습니다.`
 	}
 
+	//관광지 설정
 	for(let i = 0; i < quote.days; i++){ //여행 기간 / 2박 3일 = 3, 1박 2일 = 2, 당일치기 = 1
 		if(i === 0) //수직 방향 회색 라인
 			results += `<div id="reco_step_locale_course_day1" class="locale_day day1"><div class="verticalLine"></div>`;
@@ -1015,11 +1029,10 @@ const reco_step_locale_view = async (data, rerun = false) => {
 // 	document.getElementById(`reco_step_locale_course_day${day}`).style.display = "block";
 // }
 
-//TODO makeCourse 추천코스 시스템으로 변경
 const makeCourse = async (data, rerun = false) => {
 	// console.log("진입 : makeCourse");
 	// 선택된 도시의 관광지 목록을 불러옴 
-	let placeList = resultidreco[parseInt(dataplace(data.place) - 1)];
+	let placeList = resultidreco[parseInt(dataplace(data.place) - 1)]; //지역 관광지 목록
 	// console.log(`placeList : ↓↓`);
 	// console.log(placeList);
 	
@@ -1043,7 +1056,7 @@ const makeCourse = async (data, rerun = false) => {
 	
 	// 숙박업소 타입 지정
 	let acco_smalltype = [];
-	if(['one', 'three', 'six', 'eight'].indexOf(data.course_type) > 0) { //course_type 이 배열에 존재하지 않으면 '-1' return
+	if(['one', 'three', 'six', 'eight'].indexOf(data.course_type) > 0) { //course_type 이 배열에 존재하지 않으면 '-1' return -> else
 		acco_smalltype = [acco_smalltype, ...putsmalltype({"sleep" : "모텔"})];
 		if(data.course_type === "eight") {
 			acco_smalltype =  [acco_smalltype, ...putsmalltype({"sleep" : "호텔"}), ...putsmalltype({"sleep" : "펜션"})];
@@ -1138,6 +1151,7 @@ const makeCourse = async (data, rerun = false) => {
 		}
 	}
 
+	//코스의 첫번째 관광지 tmaplink 넘겨줌
 	let tmaplink = `https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxef0befba10d74637b27b8d7a8acdd7aa&name=${course[0].title}&lon=${course[0].mapx}&lat=${course[0].mapy}`;
 
 	// console.log({course : course, acco : acco_arr});

@@ -38,4 +38,6 @@ public interface KtourapiRepository extends CrudRepository<KtourApi, Long> {
     //그룹핑 정렬 -> 모든 지역의 카운트 불러오기(sigungu 코드 이용) 지도 보여줄 때 카운트 api 함수 쓰고 지역 선택시 관광지 불러오도록
     @Query(value = "select sigungucode, count(*) from public.ktour_api where sigungucode != '' and mapx != '' and theme IN (:theme) group by sigungucode order by sigungucode", nativeQuery = true)
     public List<Map<String, Integer>> queryCountBySigungucode(List<String> theme);
+    @Query(value = "select * from public.ktour_api where sigungucode = :sigungucode and category in (:accType)", nativeQuery = true)
+    public List<KtourApi> queryAccoBySigungucodeAndTheme(String sigungucode, List<String> accType);
 }

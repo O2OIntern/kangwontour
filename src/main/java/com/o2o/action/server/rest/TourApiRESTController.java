@@ -1,5 +1,6 @@
 package com.o2o.action.server.rest;
 
+import com.o2o.action.server.app.KangwonTour;
 import com.o2o.action.server.db.KtourApi;
 import com.o2o.action.server.repo.KtourapiRepository;
 import org.slf4j.Logger;
@@ -184,6 +185,40 @@ public class TourApiRESTController {
         System.out.println(response);
 
         return response;
+    }
+
+    @GetMapping(value = "/sigungu/accommodation")
+    public List<KtourApi> getAccommodationBySigungucodeAndTheme(@RequestParam("sigungucode") String sigungucode, @RequestParam("theme") String theme) {
+
+        System.out.println("sigungucode >>>> " + sigungucode);
+
+        List<String> list = new ArrayList<>();
+
+        if("one".equals(theme) || "three".equals(theme)) {
+            list.add("모텔");
+            list.add("게스트하우스");
+        } else if("two".equals(theme) || "four".equals(theme) || "six".equals(theme)) {
+            list.add("호텔");
+            list.add("콘도");
+            list.add("펜션");
+        } else if("five".equals(theme)) {
+            list.add("게스트하우스");
+            list.add("호텔");
+        } else if("seven".equals(theme)){
+            list.add("모텔");
+            list.add("게스트하우스");
+            list.add("호텔");
+        } else if("eight".equals(theme)){
+            list.add("모텔");
+            list.add("호텔");
+            list.add("펜션");
+        }
+
+        List<KtourApi> result = ktourapiRepository.queryAccoBySigungucodeAndTheme(sigungucode, list);
+
+        System.out.println("accommodation result index 1 >>> " + result.size());
+
+        return result;
     }
 }
 

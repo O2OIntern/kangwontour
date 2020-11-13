@@ -131,8 +131,7 @@ img[usemap] {
 }
 
 .tourBox {
-	margin-left: 5px;
-	margin-right: 5px;
+	margin: 0 10px;
 	line-height: 2rem;
 }
 
