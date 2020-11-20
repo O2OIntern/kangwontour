@@ -1,20 +1,19 @@
 package com.o2o.action.server.app;
 
-import static com.o2o.action.server.util.Language.*;
-
 import com.google.actions.api.*;
 import com.google.actions.api.response.*;
 import com.google.actions.api.response.helperintent.*;
 import com.google.api.services.actions_fulfillment.v2.model.*;
-import com.google.api.services.dialogflow_fulfillment.v2.model.WebhookResponse;
+import com.o2o.action.server.db.KtourApi;
+import com.o2o.action.server.repo.KtourapiRepository;
 import com.o2o.action.server.util.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.*;
-import javax.print.attribute.standard.*;
-import sun.awt.image.PixelConverter.*;
 
+@Component
 public class KangwonTour extends DialogflowApp {
 //  public static final String URL = "https://actions.o2o.kr/devsvr10/ko/index.html";
   public static final String URL = "https://actions.o2o.kr/devsvr4/ko/index.html";
@@ -22,6 +21,8 @@ public class KangwonTour extends DialogflowApp {
 //  public static final String URL = "https://actions.o2o.kr/devsvr2/ko/index.html";
 //   public static final String URL = "https://actions.o2o.kr/content/kangwontour/index.html";
   // public static final String URL = "https://actions.o2o.kr/content/shzheng/kangwontour/";
+  @Autowired
+  KtourapiRepository ktourapiRepository;
 
   @ForIntent("Default Welcome Intent")
   public ActionResponse defaultWelcome(ActionRequest request)
@@ -37,7 +38,7 @@ public class KangwonTour extends DialogflowApp {
     } else {
       webdata.put("command", "MAIN");
       response =
-          "<speak>강원도 투어입니다.<mark name=\"MAIN_NEXT\"/>저는 여행을 함께할 범이 라고 해요. 무엇을 도와드릴까요?</speak>";
+          "강원도 투어입니다. 저는 여행을 함께할 범이 라고 해요. 무엇을 도와드릴까요?";
       CommonUtil.printMapData(webdata);
       rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
       return rb.add(new SimpleResponse().setTextToSpeech(response))
@@ -58,6 +59,69 @@ public class KangwonTour extends DialogflowApp {
       throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
+  }
+
+  @ForIntent("FILM")
+  public ActionResponse searchForFilmingLocation(ActionRequest request) throws ExecutionException, InterruptedException {
+    ResponseBuilder rb = getResponseBuilder(request);
+    Map<String, Object> webdata = new HashMap<>();
+
+    String response = "";
+    String text = "";
+    String condition = "";
+    List<KtourApi> result = new ArrayList<>();
+    int type = 0;
+
+    String actor = CommonUtil.makeSafeString(request.getParameter("actor"));
+    String title = CommonUtil.makeSafeString(request.getParameter("title"));
+
+    System.out.println("actor >>> " + actor);
+    System.out.println("title >>>" + title);
+
+    HtmlResponse htmlResponse = new HtmlResponse();
+    request.getContexts().clear();
+    rb.getConversationData().remove("fallback");
+
+    //배우명 + 드라마 제목 검색(1)
+    if (!CommonUtil.isEmptyString(actor) && !CommonUtil.isEmptyString(title)) {
+      result = ktourapiRepository.findByFilmtitleContainingAndActorContaining(title, actor);
+      text = actor + " 배우가 출연한 ";
+      condition = title;
+      type = 1;
+    }
+    //제목으로 검색(2)
+    else if (CommonUtil.isEmptyString(actor) && !CommonUtil.isEmptyString(title)) {
+      result = ktourapiRepository.findByFilmtitleContaining(title);
+      condition = title;
+      type = 2;
+    }
+    //배우명으로 검색(3)
+    else if (!CommonUtil.isEmptyString(actor) && CommonUtil.isEmptyString(title)){
+      result = ktourapiRepository.findByActorContaining(actor);
+      condition = actor;
+      type = 3;
+    }
+
+    if(result.size() == 1) {
+      response = text + condition + " 촬영지" + result.get(0).getTitle() +" 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
+//      webdata.put("command", "INFO_DETAIL");
+    }
+    else if(result.size() > 1) {
+      response = text + condition + " 촬영지 검색 결과 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
+//      webdata.put("command", "INFO_RESULT");
+    }
+    else {
+      response = "원하시는 정보가 없는 것 같아요. 다른 검색어로 찾아보는 건 어떨까요?";
+//      webdata.put("command", "INFO_RESULT_FALLBACK");
+    }
+    webdata.put("actor", actor);
+    webdata.put("title", title);
+    webdata.put("type", type);
+    webdata.put("result", result);
+
+    return rb.add(new SimpleResponse().setTextToSpeech(response))
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("SEARCH")

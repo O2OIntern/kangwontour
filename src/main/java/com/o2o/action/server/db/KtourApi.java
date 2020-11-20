@@ -33,6 +33,25 @@ public class KtourApi implements Comparable<KtourApi> {
     String category;
     String lang;
     String film;
+    String actor;
+
+    public String getActor() {
+        return actor;
+    }
+
+    public void setActor(String actor) {
+        this.actor = actor;
+    }
+
+    public String getFilmtitle() {
+        return filmtitle;
+    }
+
+    public void setFilmtitle(String filmTitle) {
+        this.filmtitle = filmTitle;
+    }
+
+    String filmtitle;
 
     @Transient
     double distance;

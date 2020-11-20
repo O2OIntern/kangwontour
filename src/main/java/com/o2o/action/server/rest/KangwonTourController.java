@@ -20,14 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class KangwonTourController {
-    private final KangwonTour kangwontour;
+
+    @Autowired
+    private KangwonTour kangwontour;
 
     //@Autowired
     //private CategoryRepository categoryRepository;
 
-    public KangwonTourController() {
-        kangwontour = new KangwonTour();
-    }
+//    public KangwonTourController() {
+//        kangwontour = new KangwonTour();
+//    }
 
     @RequestMapping(value = "/kangwontour", method = RequestMethod.POST)
     public @ResponseBody
