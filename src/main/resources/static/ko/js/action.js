@@ -485,6 +485,128 @@ class Action {
                 clearInterval(endtimer);
                 document.getElementById('endImage').style.display = "none";
                 fallback_no_data_view(data);
+            },
+            FILM_RESULT: function (data) {
+                console.log("실행 : FILM_RESULT");
+
+                const result = data.result; //결과 list
+                console.log("data.result.length >>> " + result.length);
+
+                if(result.length === 1) {
+                    document.getElementById('startImage').style.display = "none";
+                    document.getElementById("welcome").style.backgroundImage = ``;
+
+                    hideall();
+                    drawFilmResultDetail(data.info);
+                } else {
+
+                    let myObj = [];
+                    let index = 0;
+                    const count = 50;
+
+                    result.forEach(element => {
+                        if(element.mapx)
+                            myObj.push(element);
+                    });
+
+                    document.getElementById('startImage').style.display = "none";
+                    document.getElementById("welcome").style.backgroundImage = ``;
+
+                    hideall();
+                    document.getElementById("info").style.display = 'block';
+                    document.getElementById("info_result").style.display = "block";
+                    document.getElementById("info_result_tmapview").innerHTML = "";
+
+                    const infoResultList = document.getElementById("info_result_list");
+                    infoResultList.innerHTML = `<span class="list-total-count" >총 ${data.result.length}건</span>`;
+
+                    infoResultList.style.height = (window.innerHeight - window.innerHeight/1.6) +"px";
+
+                    async function loadItems() {
+                        console.log("start with >>> "+ index)
+
+                        let temp = index+count > result.length ? result.length : index+count;
+                        let pdata = [];
+                        for(let i=index; i < temp; i++) { //console.log(" load more >>> "+i+ " / "+ count)
+                            const imgURL = result[i].firstimage ? replaceimage(result[i].firstimage) : "./img/icon/noimage.png";
+                            pdata.push({ "lng": result[i].mapx, "lat": result[i].mapy, "parent": "info_result" });
+
+                            infoResultList.innerHTML += `
+                                <div id = "resultlist${i}" class="list-box" onclick="resultnumber(${parseInt(i + 1)})">
+                                    <div id="info_result-circle${i}" class="result-circle">
+                                        <div class="result-number">${parseInt(i + 1)}</div>
+                                    </div>
+                                    <div class="result-img"><img src="${imgURL}"></div>
+                                    <div class="result-text">
+                                        <div class="result-title">
+                                            [${parseInt(i + 1)}] ${result[i].title}
+                                        </div>
+                                        <div class="result-addr">
+                                            <i class='fas fa-map-marker-alt'></i>  ${result[i].addr1 ? result[i].addr1 : "주소정보 없음"}
+                                        </div>
+                                    </div>
+                                </div>`;
+
+                        }
+
+                        document.getElementById("info_result_tmapview").innerHTML = "";
+                        info_result_map(pdata, "info_result_tmapview");
+                        index += count;
+
+                        const ioOptions = {
+                            root: null, //document.querySelector('.container'), // .container class를 가진 엘리먼트를 root로 설정. null일 경우 브라우저 viewport
+                            rootMargin: '20px', // rootMargin을 '10px 10px 10px 10px'로 설정
+                            threshold: 0.5 // target이 root에 진입시 : 0, root에 target의 50%가 있을 때 : 0.5, root에 target의 100%가 있을 때 : 1.0
+                        }
+
+                        const io = new IntersectionObserver( (entries, observer) => {
+
+                            entries.forEach( async (entry) => {
+                                if (entry.isIntersecting) { //entry.intersectionRatio > 0
+
+                                    infoResultList.innerHTML += `<div class="loading-spinner"></div>`;
+                                    setTimeout( async  () => {
+                                        loadItems();
+                                        observer.unobserve(entry.target);
+
+                                        const spinner = infoResultList.querySelector(".loading-spinner");
+                                        spinner.parentNode.removeChild(spinner);
+                                        console.log("removed")
+                                    }, 260);
+                                }
+                            });
+                        }, ioOptions)
+
+                        if (result.length > temp) {
+                            const infoResultLastItem = document.querySelector(`#resultlist${temp-1}`);
+                            io.observe(infoResultLastItem);
+                        }
+                    }
+
+                    loadItems();
+                }
+            },
+            FILM_DETAIL: function (data) {
+                console.log("실행 : FILM_DETAIL");
+                console.log(data.info);
+                console.log(data.info.title);
+
+                const tag = parseInt(data.info_number - 1);
+
+                if( resultidinfo && !data.fallback ) {
+                    resultidinfo.map( (data, i) => {
+                        document.getElementById(`info_result-circle${i}`).style.backgroundColor = "#ffffff";
+                        document.getElementById(`resultlist${i}`).style.backgroundColor = "#ffffff";
+                    })
+
+                    document.getElementById(`info_result-circle${tag}`).style.backgroundColor = "#1ad3f1";
+                    document.getElementById(`resultlist${tag}`).style.backgroundColor = "#1ad3f1";
+
+                    setTimeout( ()=>drawFilmDetail(data) , 1000);
+
+                } else {
+                    document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_charafallback.png");
+                }
             }
             // MYCOURSE: function(data){
             //   mycourse_view(data);

@@ -4,12 +4,14 @@ import com.google.actions.api.*;
 import com.google.actions.api.response.*;
 import com.google.actions.api.response.helperintent.*;
 import com.google.api.services.actions_fulfillment.v2.model.*;
+import com.google.gson.reflect.TypeToken;
 import com.o2o.action.server.db.KtourApi;
 import com.o2o.action.server.repo.KtourapiRepository;
 import com.o2o.action.server.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -102,22 +104,56 @@ public class KangwonTour extends DialogflowApp {
       type = 3;
     }
 
+    rb.getConversationData().put("filmResult", result);
+
     if(result.size() == 1) {
       response = text + condition + " 촬영지" + result.get(0).getTitle() +" 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
-//      webdata.put("command", "INFO_DETAIL");
+      webdata.put("info", result.get(0));
+      rb.getConversationData().put("film_info", result.get(0));
+      webdata.put("command", "FILM_RESULT");
     }
     else if(result.size() > 1) {
       response = text + condition + " 촬영지 검색 결과 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
-//      webdata.put("command", "INFO_RESULT");
+      webdata.put("command", "FILM_RESULT");
     }
     else {
       response = "원하시는 정보가 없는 것 같아요. 다른 검색어로 찾아보는 건 어떨까요?";
-//      webdata.put("command", "INFO_RESULT_FALLBACK");
+      webdata.put("command", "INFO_RESULT_FALLBACK");
     }
     webdata.put("actor", actor);
     webdata.put("title", title);
     webdata.put("type", type);
     webdata.put("result", result);
+
+    return rb.add(new SimpleResponse().setTextToSpeech(response))
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
+  }
+
+  @ForIntent("FILM_DETAIL")
+  public ActionResponse filmDetailIntent(ActionRequest request) throws ExecutionException, InterruptedException {
+
+    ResponseBuilder rb = getResponseBuilder(request);
+    String response = "";
+    Map<String, Object> webdata = new HashMap<>();
+
+    Object obj = rb.getConversationData().get("filmResult");
+    int number = (int) Double.parseDouble(String.valueOf(request.getParameter("number")));
+
+    List<KtourApi> result = (List<KtourApi>) obj;
+
+    System.out.println(result);
+    System.out.println(number);
+    System.out.println(result.get(number - 1));
+
+    webdata.put("info", result.get((number - 1)));
+    webdata.put("info_number", number);
+    webdata.put("command","FILM_DETAIL");
+    rb.getConversationData().put("film_info", result.get((number - 1)));
+
+    response = "선택하신 " +
+            number
+            + " 번째 촬영지 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
             .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
@@ -427,6 +463,7 @@ public class KangwonTour extends DialogflowApp {
     String response = "";
     Map<String, Object> webdata = new HashMap<>();
     rb.getConversationData().remove("fallback");
+    rb.getConversationData().remove("film_info");
     if (request.getRawInput().getQuery().equalsIgnoreCase("SEARCH_DATA_ONE")) {
 
       webdata.put("command", "INFO_SEARCH_DETAIL");
@@ -473,6 +510,9 @@ public class KangwonTour extends DialogflowApp {
     if (!CommonUtil.isEmptyString(link)) {
       webdata.put("command", "INFO_DETAIL_LINK");
       webdata.put("link", link);
+
+      webdata.put("film_info", rb.getConversationData().get("film_info"));
+      System.out.println("link url film info >>> " + rb.getConversationData().get("film_info"));
 
       switch (link) {
         case "티맵":
@@ -623,6 +663,7 @@ public class KangwonTour extends DialogflowApp {
     Map<String, Object> webdata = new HashMap<>();
     double number = Double.parseDouble(String.valueOf(request.getParameter("number")));
     rb.getConversationData().remove("fallback");
+    rb.getConversationData().remove("film_info  ");
 
     webdata.put("command", "INFO_DETAIL");
 
@@ -896,6 +937,7 @@ public class KangwonTour extends DialogflowApp {
     double number = Double.parseDouble(String.valueOf(request.getParameter("number")));
     String sleep = CommonUtil.makeSafeString(request.getParameter("sleep"));
     rb.getConversationData().remove("fallback");
+    rb.getConversationData().remove("film_info");
 
     webdata.put("command", "INFO_DETAIL");
 

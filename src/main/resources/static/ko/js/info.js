@@ -347,6 +347,7 @@ async function info_search_detail_view(data) {
 // 	});
 // }
 
+//추가
 async function info_result_view(data) {
 	console.log(`실행 : info_result_view() >>> data >>> `+data);
 
@@ -824,6 +825,248 @@ async function drawDetail(data) {
 
 }
 
+async function drawFilmDetail(data) {
+	console.log(`실행 : drawFilmDetail`);
+	if(data.info) {
+		document.getElementById("info").style.display = 'block';
+		document.getElementById("info_result").style.display = "block";
+		// 스크롤 되지 않는 문제 수정
+		document.getElementById("info_result_list").style.height = (window.innerHeight - window.innerHeight/1.6) +"px";
+	}
+
+	document.getElementById("info_result_list").innerHTML = `
+		<div id="info_detail_title" class="detail-title"></div>
+		<div id="info_detail_etc" class="detail-etc"></div>
+		<div id="info_detail_image" class="detail_info-img"></div>
+		<h4>개요</h4>
+		<div id="info_detail_descript" class="detail-descript"></div>
+		<h4>시설정보</h4>
+		<div id="info_detail_intro" class="detail-intro"></div>
+		<div class="localfood_guide_04">
+			<img src="./img/btn_ytb.png" alt="유튜브에서 더보기" onclick="sendText('유튜브에서 더보기')">
+			<img src="./img/btn_insta.png" alt="인스타그램에서 더보기" onclick="sendText('인스타그램에서 더보기')">
+		</div>
+	`;
+
+	document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_chara.png");
+
+	const jsonData = await tourAPI("상세정보", data, data.info)
+	jsonData.map( myObj => {
+
+		const website = myObj.homepage ?
+			myObj.homepage.substring( myObj.homepage.indexOf(">")+1, myObj.homepage.lastIndexOf("<") )
+			: '';
+
+		const pdata = { //tmap myObj
+			Lng: myObj.mapx,
+			Lat: myObj.mapy,
+			Name: myObj.title
+			// Level: myObj.mlevel
+		};
+
+		document.querySelector("#info_detail_title").innerHTML = `
+<!--			<img src="./img/local_food_02.png" class="go_prev" onclick="sendText('이전으로')" > -->
+			<div class="detail_title_text">${myObj.title}</div>
+			<img src="./img/info_detail_01.png" class="find_route" onclick="sendText('가는길알려줘')">`;
+		//주소/홈페이지/전화번호
+		document.querySelector("#info_detail_etc").innerHTML = `
+			<i class='fas fa-map-marker-alt'></i> ${myObj.addr1 ? myObj.addr1 : "주소정보 없음"}<br>`;
+
+		if(website) {
+			document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
+		}
+		if(myObj.tel) {
+			document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
+		}
+
+		//선택한 항목으로 지도 중심 옮기기 / 지도 핀 옮기기
+		document.getElementById("info_result_tmapview").innerHTML = "";
+		info_map(pdata, "info_result_tmapview");
+		//Tmap 링크 생성
+		tmaplink = `https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxef0befba10d74637b27b8d7a8acdd7aa&name=${pdata.Name}&lon=${pdata.Lng}&lat=${pdata.Lat}`;
+
+		// const imgURL = myObj.firstimage ? replaceimage(myObj.firstimage) : "./img/icon/noimage.png";
+		if(myObj.firstimage) document.querySelector("#info_detail_image").innerHTML = `<img src="${myObj.firstimage}">`;
+		// document.querySelector("#info_detail_image").innerHTML = `<img src="${imgURL}">`;
+		document.querySelector("#info_detail_descript").innerHTML = `${myObj.overview}`;
+
+		linkKeyword = myObj.title; //sns에서 더보기
+
+		//타이틀이 길 경우
+		const marqueeTxt = document.querySelector(".detail_title_text");
+
+		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth) {
+			marqueeTxt.classList.add("marquee");
+		}
+
+		const facilities = document.getElementById("info_detail_intro");
+
+		if (myObj.chkbabycarriage) facilities.innerHTML += `- 유모차대여 정보 : ${myObj.chkbabycarriage}<br>`;
+		if (myObj.accomcount) facilities.innerHTML += `- 수용인원 : ${myObj.accomcount}<br>`;
+		if (myObj.infocenter) facilities.innerHTML += `- 문의 및 안내 : ${myObj.infocenter}<br>`;
+		if (myObj.parking) facilities.innerHTML += `- 주차시설 : ${myObj.parking}<br>`;
+		if (myObj.parkingfee) facilities.innerHTML += `- 주차요금 : ${myObj.parkingfee}<br>`;
+		if (myObj.reservation) facilities.innerHTML += `- 예약안내 : ${myObj.reservation}<br>`;
+		if (myObj.restdate) facilities.innerHTML += `- 쉬는날 : ${myObj.restdate}<br>`;
+		if (myObj.chkpet) facilities.innerHTML += `- 애완동물동반가능정보 : ${myObj.chkpet}<br>`;
+		if (myObj.opentime) facilities.innerHTML += `- 영업시간 : ${myObj.opentime}<br>`;
+		if (myObj.usetime) facilities.innerHTML += `- 이용시간 : ${myObj.usetime}<br>`;
+		if (myObj.usefee) facilities.innerHTML += `- 이용요금 : ${myObj.usefee}<br>`;
+		//음식점 only
+		if (myObj.discountinfofood) facilities.innerHTML += `- 할인정보 : ${myObj.discountinfofood}<br>`;
+		if (myObj.firstmenu) facilities.innerHTML += `- 대표메뉴 : ${myObj.firstmenu}<br>`;
+		if (myObj.packing) facilities.innerHTML += `- 포장가능 : ${myObj.packing}<br>`;
+		//관광지 only
+		if (myObj.useseason) facilities.innerHTML += `- 할인정보 : ${myObj.useseason}<br>`;
+		//숙박시설 only
+		if (myObj.checkintime) facilities.innerHTML += `- 입실시간 : ${myObj.checkintime}<br>`;
+		if (myObj.checkouttime) facilities.innerHTML += `- 퇴실시간 : ${myObj.checkouttime}<br>`;
+		if (myObj.chkcooking) facilities.innerHTML += `- 객실내 취사 여부 : ${myObj.chkcooking}<br>`;
+		//레포츠 only
+		if (myObj.expagerange) facilities.innerHTML += `- 체험 가능연령 : ${myObj.expagerange}<br>`;
+		if (myObj.openperiod) facilities.innerHTML += `- 개장기간 : ${myObj.openperiod}<br>`;
+		//쇼핑 only
+		if (myObj.opendate) facilities.innerHTML += `- 개장일 : ${myObj.opendate}<br>`;
+		if (myObj.fairday) facilities.innerHTML += `- 장서는날 : ${myObj.fairday}<br>`;
+		if (myObj.saleitem) facilities.innerHTML += `- 판매 품목 : ${myObj.saleitem}<br>`;
+	});
+	// });
+
+	fetch(`https://actions.o2o.kr/devsvr10/finddetailimg?contentid=${data.info.contentid}`)
+		.then( res => res.json() )
+		.then( jsonData => {
+			console.log(`3: json 응답 갯수 : ${jsonData.length} 개 \n data >>> ${JSON.stringify(jsonData)}`);
+
+			jsonData.map( obj => {
+				document.getElementById("info_detail_image").innerHTML += `
+				<img src="${replaceimage(obj.smallimageurl)}">
+			`; //originimgurl
+			})
+		});
+
+}
+
+async function drawFilmResultDetail(data) {
+	console.log(`실행 : drawFilmDetail`);
+	if(data) {
+		document.getElementById("info").style.display = 'block';
+		document.getElementById("info_result").style.display = "block";
+		// 스크롤 되지 않는 문제 수정
+		document.getElementById("info_result_list").style.height = (window.innerHeight - window.innerHeight/1.6) +"px";
+	}
+
+	document.getElementById("info_result_list").innerHTML = `
+		<div id="info_detail_title" class="detail-title"></div>
+		<div id="info_detail_etc" class="detail-etc"></div>
+		<div id="info_detail_image" class="detail_info-img"></div>
+		<h4>개요</h4>
+		<div id="info_detail_descript" class="detail-descript"></div>
+		<h4>시설정보</h4>
+		<div id="info_detail_intro" class="detail-intro"></div>
+		<div class="localfood_guide_04">
+			<img src="./img/btn_ytb.png" alt="유튜브에서 더보기" onclick="sendText('유튜브에서 더보기')">
+			<img src="./img/btn_insta.png" alt="인스타그램에서 더보기" onclick="sendText('인스타그램에서 더보기')">
+		</div>
+	`;
+
+	document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_chara.png");
+
+	const jsonData = await tourAPI("상세정보", data, data)
+	jsonData.map( myObj => {
+
+		const website = myObj.homepage ?
+			myObj.homepage.substring( myObj.homepage.indexOf(">")+1, myObj.homepage.lastIndexOf("<") )
+			: '';
+
+		const pdata = { //tmap myObj
+			Lng: myObj.mapx,
+			Lat: myObj.mapy,
+			Name: myObj.title
+			// Level: myObj.mlevel
+		};
+
+		document.querySelector("#info_detail_title").innerHTML = `
+<!--			<img src="./img/local_food_02.png" class="go_prev" onclick="sendText('이전으로')" > -->
+			<div class="detail_title_text">${myObj.title}</div>
+			<img src="./img/info_detail_01.png" class="find_route" onclick="sendText('가는길알려줘')">`;
+		//주소/홈페이지/전화번호
+		document.querySelector("#info_detail_etc").innerHTML = `
+			<i class='fas fa-map-marker-alt'></i> ${myObj.addr1 ? myObj.addr1 : "주소정보 없음"}<br>`;
+
+		if(website) {
+			document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
+		}
+		if(myObj.tel) {
+			document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
+		}
+
+		//선택한 항목으로 지도 중심 옮기기 / 지도 핀 옮기기
+		document.getElementById("info_result_tmapview").innerHTML = "";
+		info_map(pdata, "info_result_tmapview");
+		//Tmap 링크 생성
+		tmaplink = `https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxef0befba10d74637b27b8d7a8acdd7aa&name=${pdata.Name}&lon=${pdata.Lng}&lat=${pdata.Lat}`;
+
+		// const imgURL = myObj.firstimage ? replaceimage(myObj.firstimage) : "./img/icon/noimage.png";
+		if(myObj.firstimage) document.querySelector("#info_detail_image").innerHTML = `<img src="${myObj.firstimage}">`;
+		// document.querySelector("#info_detail_image").innerHTML = `<img src="${imgURL}">`;
+		document.querySelector("#info_detail_descript").innerHTML = `${myObj.overview}`;
+
+		linkKeyword = myObj.title; //sns에서 더보기
+
+		//타이틀이 길 경우
+		const marqueeTxt = document.querySelector(".detail_title_text");
+
+		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth) {
+			marqueeTxt.classList.add("marquee");
+		}
+
+		const facilities = document.getElementById("info_detail_intro");
+
+		if (myObj.chkbabycarriage) facilities.innerHTML += `- 유모차대여 정보 : ${myObj.chkbabycarriage}<br>`;
+		if (myObj.accomcount) facilities.innerHTML += `- 수용인원 : ${myObj.accomcount}<br>`;
+		if (myObj.infocenter) facilities.innerHTML += `- 문의 및 안내 : ${myObj.infocenter}<br>`;
+		if (myObj.parking) facilities.innerHTML += `- 주차시설 : ${myObj.parking}<br>`;
+		if (myObj.parkingfee) facilities.innerHTML += `- 주차요금 : ${myObj.parkingfee}<br>`;
+		if (myObj.reservation) facilities.innerHTML += `- 예약안내 : ${myObj.reservation}<br>`;
+		if (myObj.restdate) facilities.innerHTML += `- 쉬는날 : ${myObj.restdate}<br>`;
+		if (myObj.chkpet) facilities.innerHTML += `- 애완동물동반가능정보 : ${myObj.chkpet}<br>`;
+		if (myObj.opentime) facilities.innerHTML += `- 영업시간 : ${myObj.opentime}<br>`;
+		if (myObj.usetime) facilities.innerHTML += `- 이용시간 : ${myObj.usetime}<br>`;
+		if (myObj.usefee) facilities.innerHTML += `- 이용요금 : ${myObj.usefee}<br>`;
+		//음식점 only
+		if (myObj.discountinfofood) facilities.innerHTML += `- 할인정보 : ${myObj.discountinfofood}<br>`;
+		if (myObj.firstmenu) facilities.innerHTML += `- 대표메뉴 : ${myObj.firstmenu}<br>`;
+		if (myObj.packing) facilities.innerHTML += `- 포장가능 : ${myObj.packing}<br>`;
+		//관광지 only
+		if (myObj.useseason) facilities.innerHTML += `- 할인정보 : ${myObj.useseason}<br>`;
+		//숙박시설 only
+		if (myObj.checkintime) facilities.innerHTML += `- 입실시간 : ${myObj.checkintime}<br>`;
+		if (myObj.checkouttime) facilities.innerHTML += `- 퇴실시간 : ${myObj.checkouttime}<br>`;
+		if (myObj.chkcooking) facilities.innerHTML += `- 객실내 취사 여부 : ${myObj.chkcooking}<br>`;
+		//레포츠 only
+		if (myObj.expagerange) facilities.innerHTML += `- 체험 가능연령 : ${myObj.expagerange}<br>`;
+		if (myObj.openperiod) facilities.innerHTML += `- 개장기간 : ${myObj.openperiod}<br>`;
+		//쇼핑 only
+		if (myObj.opendate) facilities.innerHTML += `- 개장일 : ${myObj.opendate}<br>`;
+		if (myObj.fairday) facilities.innerHTML += `- 장서는날 : ${myObj.fairday}<br>`;
+		if (myObj.saleitem) facilities.innerHTML += `- 판매 품목 : ${myObj.saleitem}<br>`;
+	});
+	// });
+
+	fetch(`https://actions.o2o.kr/devsvr10/finddetailimg?contentid=${data.contentid}`)
+		.then( res => res.json() )
+		.then( jsonData => {
+			console.log(`3: json 응답 갯수 : ${jsonData.length} 개 \n data >>> ${JSON.stringify(jsonData)}`);
+
+			jsonData.map( obj => {
+				document.getElementById("info_detail_image").innerHTML += `
+				<img src="${replaceimage(obj.smallimageurl)}">
+			`; //originimgurl
+			})
+		});
+
+}
+
 function findLocalFoodStores(data) {
 	console.log("실행 : findLocalFoodStores() , data.food >> "+data.food);
 
@@ -962,6 +1205,7 @@ function info_detail_link_view(data) {
 	resultidinfo.forEach(function(word){
 		if(word.selected) selected = word;
 	});
+	if(data.film_info) selected = data.film_info;
 	console.log(selected);
 
 	// '가는길 알려줘' => 티맵 이동 modal화면
