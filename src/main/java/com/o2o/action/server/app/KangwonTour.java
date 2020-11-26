@@ -17,48 +17,39 @@ import java.util.concurrent.*;
 
 @Component
 public class KangwonTour extends DialogflowApp {
-//  public static final String URL = "https://actions.o2o.kr/devsvr10/ko/index.html";
-  public static final String URL = "https://actions.o2o.kr/devsvr4/ko/index.html";
-//    public static final String URL = "https://jarvis.o2o.kr/kangwontour/ko/index.html";
-//  public static final String URL = "https://actions.o2o.kr/devsvr2/ko/index.html";
-//   public static final String URL = "https://actions.o2o.kr/content/kangwontour/index.html";
-  // public static final String URL = "https://actions.o2o.kr/content/shzheng/kangwontour/";
+
+  public static final String URL = "https://actions.o2o.kr/devsvr9/ko/index.html";
+
   @Autowired
   KtourapiRepository ktourapiRepository;
 
   @ForIntent("Default Welcome Intent")
-  public ActionResponse defaultWelcome(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse defaultWelcome(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
-    String response = "";
     rb.getConversationData().remove("fallback");
 
     if (!request.hasCapability("actions.capability.INTERACTIVE_CANVAS")) {
-      response = "Inveractive Canvas가 지원되지 않는 기기에요. 다른 기기로 다시 이용해 주세요.";
-      return rb.add(new SimpleResponse().setSsml(response)).endConversation().build();
+      return rb.add(new SimpleResponse().setSsml("Inveractive Canvas가 지원되지 않는 기기에요. 다른 기기로 다시 이용해 주세요."))
+              .endConversation().build();
     } else {
       webdata.put("command", "MAIN");
-      response =
-          "강원도 투어입니다. 저는 여행을 함께할 범이 라고 해요. 무엇을 도와드릴까요?";
       CommonUtil.printMapData(webdata);
       rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
-      return rb.add(new SimpleResponse().setTextToSpeech(response))
-          .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-          .build();
+      return rb.add(new SimpleResponse().setTextToSpeech("강원도 투어입니다. 저는 여행을 함께할 범이 라고 해요. 무엇을 도와드릴까요?"))
+              .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+              .build();
     }
   }
 
   @ForIntent("Default Welcome Intent - fallback")
-  public ActionResponse defaultWelcomeFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse defaultWelcomeFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
   @ForIntent("Default Fallback Intent")
-  public ActionResponse defaultFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse defaultFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -80,7 +71,6 @@ public class KangwonTour extends DialogflowApp {
     System.out.println("actor >>> " + actor);
     System.out.println("title >>>" + title);
 
-    HtmlResponse htmlResponse = new HtmlResponse();
     request.getContexts().clear();
     rb.getConversationData().remove("fallback");
 
@@ -111,12 +101,10 @@ public class KangwonTour extends DialogflowApp {
       webdata.put("info", result.get(0));
       rb.getConversationData().put("film_info", result.get(0));
       webdata.put("command", "FILM_RESULT");
-    }
-    else if(result.size() > 1) {
+    } else if(result.size() > 1) {
       response = text + condition + " 촬영지 검색 결과 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
       webdata.put("command", "FILM_RESULT");
-    }
-    else {
+    } else {
       response = "원하시는 정보가 없는 것 같아요. 다른 검색어로 찾아보는 건 어떨까요?";
       webdata.put("command", "INFO_RESULT_FALLBACK");
     }
@@ -161,8 +149,7 @@ public class KangwonTour extends DialogflowApp {
   }
 
   @ForIntent("SEARCH")
-  public ActionResponse intentInfoResult(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentInfoResult(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     String response = "";
     Map<String, Object> webdata = new HashMap<>();
@@ -181,10 +168,8 @@ public class KangwonTour extends DialogflowApp {
       System.out.println("data -> search : " + search);
       rb.getConversationData().put("search", search);
 
-      response =
-          "<speak><break time=\"4000ms\"/><sub alias=\"\">'"
-              + search
-              + "' 데이터를 검색중입니다.</sub></speak>";
+      response = "<speak><break time=\"4000ms\"/><sub alias=\"\">'"
+              + search + "' 데이터를 검색중입니다.</sub></speak>";
       webdata.put("command", "INFO_SEARCH");
       webdata.put("any", search);
     } else { //변수에 값이 없을 경우
@@ -206,23 +191,22 @@ public class KangwonTour extends DialogflowApp {
         }
       }
   
-      if (request
-              .getWebhookRequest()
-              .getQueryResult()
-              .getQueryText()
-              .equalsIgnoreCase("actions_intent_PERMISSION")) {
-        if (CommonUtil.isEmptyString(type)) {
+      if (request.getWebhookRequest()
+                .getQueryResult()
+                .getQueryText()
+                .equalsIgnoreCase("actions_intent_PERMISSION")) {
+        if (CommonUtil.isEmptyString(type))
           type = CommonUtil.makeSafeString(rb.getConversationData().get("type"));
-        }
-        if (CommonUtil.isEmptyString(sleep)) {
+
+        if (CommonUtil.isEmptyString(sleep))
           sleep = CommonUtil.makeSafeString(rb.getConversationData().get("sleep"));
-        }
-        if (CommonUtil.isEmptyString(tour)) {
+
+        if (CommonUtil.isEmptyString(tour))
           tour = CommonUtil.makeSafeString(rb.getConversationData().get("tour"));
-        }
-        if (CommonUtil.isEmptyString(eat)) {
+
+        if (CommonUtil.isEmptyString(eat))
           eat = CommonUtil.makeSafeString(rb.getConversationData().get("eat"));
-        }
+
         if (request.getArgument("PERMISSION").getTextValue().equals("true")) {
           // PERMISSION -> CHECK 했고 Yes
           // place -> NULL (이후 사용자 위치 받음)  case 1
@@ -336,15 +320,12 @@ public class KangwonTour extends DialogflowApp {
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
-        .build();
-
-    //    return rb.add(request.getIntent()).build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
+            .build();
   }
 
   @ForIntent("SEARCH - fallback")
-  public ActionResponse searchFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse searchFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -380,8 +361,7 @@ public class KangwonTour extends DialogflowApp {
   }
 
   @ForIntent("RESULT_HEAL - fallback")
-  public ActionResponse intentResultHealFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentResultHealFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -404,8 +384,7 @@ public class KangwonTour extends DialogflowApp {
 
     if (request.getRawInput().getQuery().equalsIgnoreCase("SEARCH_DATA_LIST")) {
       webdata.put("command", "INFO_SEARCH_RESULT");
-      response =
-          CommonUtil.makeSafeString(rb.getConversationData().get("search"))
+      response = CommonUtil.makeSafeString(rb.getConversationData().get("search"))
               + " 검색 결과입니다. 원하는 정보를 클릭하거나, 제게 말을 걸어 보세요.";
     } else if (!CommonUtil.isEmptyString(eat)) {
       System.out.println("data -> eat : " + eat);
@@ -450,27 +429,25 @@ public class KangwonTour extends DialogflowApp {
   }
 
   @ForIntent("RESULT_LIST - fallback")
-  public ActionResponse resultListFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse resultListFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
   @ForIntent("RESULT_ONE")
-  public ActionResponse intentResultOne(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentResultOne(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
-    String response = "";
     Map<String, Object> webdata = new HashMap<>();
     rb.getConversationData().remove("fallback");
     rb.getConversationData().remove("film_info");
+
+    String response = "";
     if (request.getRawInput().getQuery().equalsIgnoreCase("SEARCH_DATA_ONE")) {
 
       webdata.put("command", "INFO_SEARCH_DETAIL");
       webdata.put("search_number", (int) 1);
       rb.getConversationData().put("search_number", (int) 1);
-      response = "선택하신 " +
-          CommonUtil.makeSafeString(rb.getConversationData().get("search"))
+      response = "선택하신 " + CommonUtil.makeSafeString(rb.getConversationData().get("search"))
               + " 으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!";
     } else {
       double number = Double.parseDouble(String.valueOf(request.getParameter("number")));
@@ -486,8 +463,8 @@ public class KangwonTour extends DialogflowApp {
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
   
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
+            .build();
   }
 
   @ForIntent("RESULT_ONE - fallback")
@@ -519,12 +496,10 @@ public class KangwonTour extends DialogflowApp {
           response = "T map 앱으로 안내를 진행하려면 버튼을 누르거나 연결이라고 말해보세요.";
           break;
         case "인스타그램":
-          response =
-              "<speak><sub alias=\"\">인스타그램 앱으로 태그를 검색하려면 버튼을 누르거나 인스타그램 더보기 라고 말해보세요</sub></speak>";
+          response = "<speak><sub alias=\"\">인스타그램 앱으로 태그를 검색하려면 버튼을 누르거나 인스타그램 더보기 라고 말해보세요</sub></speak>";
           break;
         case "유튜브":
-          response =
-              "<speak><sub alias=\"\">유튜브 앱으로 영상을 시청하려면 버튼을 누르거나 유튜브 더보기 라고 말해보세요</sub></speak>";
+          response = "<speak><sub alias=\"\">유튜브 앱으로 영상을 시청하려면 버튼을 누르거나 유튜브 더보기 라고 말해보세요</sub></speak>";
           break;
       }
     }
@@ -532,39 +507,33 @@ public class KangwonTour extends DialogflowApp {
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
   
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("LINK_URL - fallback")
-  public ActionResponse intentLinkUrlFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentLinkUrlFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
   @ForIntent("LINK_URL_GO")
-  public ActionResponse intentDetailLinkFinal(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentDetailLinkFinal(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
     rb.getConversationData().remove("fallback");
 
     webdata.put("command", "INFO_DETAIL_LINK_FINAL");
-    String response = "";
-
-    response = "<speak><sub alias=\"\">티맵을 실행합니다.</sub></speak>";
     CommonUtil.printMapData(webdata);
-    rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
+    rb.getConversationData().put("recommand", CommonUtil.makeSafeString(webdata.get("command")));
   
-    return rb.add(new SimpleResponse().setTextToSpeech(response))
+    return rb.add(new SimpleResponse().setTextToSpeech("<speak><sub alias=\"\">티맵을 실행합니다.</sub></speak>"))
         .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
         .build();
   }
 
   @ForIntent("LINK_URL_GO - fallback")
-  public ActionResponse intentLinkUrlGoFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentLinkUrlGoFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -587,8 +556,7 @@ public class KangwonTour extends DialogflowApp {
   }
 
   @ForIntent("MAIN - fallback")
-  public ActionResponse intentMainFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentMainFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -605,21 +573,19 @@ public class KangwonTour extends DialogflowApp {
     webdata.put("command", "LOCAL_FOOD");
 
     String foodNm = Language.getFoodNm_Ko(place);
-
-    String response =
-        place + "의 대표음식인 " + foodNm + "에 관한 설명이에요, 맛이 궁금하다면 범이에게 " + foodNm + " 맛집을 물어 보세요";
+    String response = place + "의 대표음식인 " + foodNm + "에 관한 설명이에요, 맛이 궁금하다면 풍이에게 "
+                    + foodNm + " 맛집을 물어 보세요";
 
     CommonUtil.printMapData(webdata);
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
   
-    return rb.add(new SimpleResponse().setTextToSpeech(response)) // TTS
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+    return rb.add(new SimpleResponse().setTextToSpeech(response)) 
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("MAIN_DIRECT_FOOD - fallback")
-  public ActionResponse intentMainDirectFoodFallback(ActionRequest request)
-          throws ExecutionException, InterruptedException {
+  public ActionResponse intentMainDirectFoodFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -634,24 +600,21 @@ public class KangwonTour extends DialogflowApp {
     rb.getConversationData().remove("fallback");
 
     if (food.isEmpty())
-      food =
-          Language.getFoodNm_Ko(CommonUtil.makeSafeString(rb.getConversationData().get("region")));
+      food = Language.getFoodNm_Ko(CommonUtil.makeSafeString(rb.getConversationData().get("region")));
 
     webdata.put("food", food.replace(" ", ""));
-    webdata.put(
-        "command", "LOCAL_FOOD_STORES"); //        data.put("command", "INFO_RESULT"); //기존 리스트
+    webdata.put("command", "LOCAL_FOOD_STORES"); // data.put("command", "INFO_RESULT"); //기존 리스트
     String response = food + " 음식점 검색 결과입니다! 원하는 정보를 클릭하거나, 제게 말을 걸어 보세요.";
     CommonUtil.printMapData(webdata);
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
 
     return rb.add(new SimpleResponse().setTextToSpeech(response)) // TTS
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
+            .build();
   }
 
   @ForIntent("FOOD_RESTAURANT - fallback")
-  public ActionResponse intentFoodRestaurantFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentFoodRestaurantFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
@@ -671,63 +634,63 @@ public class KangwonTour extends DialogflowApp {
       System.out.println("data -> number : " + number);
       webdata.put("info_number", (int) number);
       rb.getConversationData().put("number", number);
-      response =
-          "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신 "
-              + (int) number
-              + "번으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+      response = "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신 "
+              + (int) number + "번으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
     }
 
     System.out.println("Dialog response : " + response);
     CommonUtil.printMapData(webdata);
-    rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
+    rb.getConversationData().put("recommand", CommonUtil.makeSafeString(webdata.get("command")));
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
+            .build();
   }
 
   @ForIntent("FOOD_RESTAURANT_SELECT - fallback")
-  public ActionResponse intentFoodRestaurantSelectFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentFoodRestaurantSelectFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
+  /**
+   * 추천코스 : "원하시는 테마를 말씀해주세요!"
+   * choose among 힐링, 문화여행, 레저/스포츠
+   */
   @ForIntent("RECOMMEND")
-  public ActionResponse intentRecommend(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommend(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
-    String response = "";
     Map<String, Object> webdata = new HashMap<>();
     request.getContexts().clear();
     rb.getConversationData().remove("fallback");
 
     webdata.put("command", "RECO");
-    response = "원하시는 테마를 말씀해주세요!";
+    String response = "원하시는 테마를 말씀해주세요!";
     CommonUtil.printMapData(webdata);
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
 
     System.out.println("Dialog response : " + response);
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("RECOMMEND - fallback")
-  public ActionResponse intentRecommendFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
-
+  /**
+   * 추천코스 질문2
+   * 질문1(힐링,문화) => 알뜰하게 or 욜로
+   * 질문1(레저스포츠) => 혼자, 가족이랑, 친구랑, 연인이랑
+   */
   @ForIntent("RECOMMEND_STEP_ONE")
-  public ActionResponse intentRecommendStepOne(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendStepOne(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     String response = "";
     Map<String, Object> webdata = new HashMap<>();
     String question_one = CommonUtil.makeSafeString(request.getParameter("question_one"));
-    //레저, 힐링, 문화여행 ...
     rb.getConversationData().remove("fallback");
 
     if (!CommonUtil.isEmptyString(question_one)) { //question_one 변수에 값이 있을 경우
@@ -742,88 +705,86 @@ public class KangwonTour extends DialogflowApp {
     //command 에 저장된 값(RECO_STEP_ONE)을 recommand(recommend)에 넣어두기
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("RECOMMEND_STEP_ONE - fallback")
-  public ActionResponse intentRecommendStepOneFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendStepOneFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
-
+  /**
+   * 추천코스 질문3
+   * 여행기간 선택 : 당일치기, 1박2일, 2박3일
+   */
   @ForIntent("RECOMMEND_STEP_TWO")
-  public ActionResponse intentRecommendStepTwo(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendStepTwo(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
     String question_one = CommonUtil.makeSafeString(rb.getConversationData().get("question_one"));
     String question_two = CommonUtil.makeSafeString(request.getParameter("question_two"));
-    String response = "";
-    String course_type = "";
     rb.getConversationData().remove("fallback");
 
+    String course_type = "";
+    int companion = 0;
     if (!CommonUtil.isEmptyString(question_two)) { 
       webdata.put("command", "RECO_STEP_TWO");
       webdata.put("question_one", question_one);
       webdata.put("question_two", question_two);
       rb.getConversationData().put("question_two", question_two);
-      if (question_one.equalsIgnoreCase("힐링")) { //힐링일 경우
-        if (!question_two.equalsIgnoreCase("욜로")) {
+
+      if (question_one.equals("힐링")) { //힐링일 경우
+        if (!question_two.equals("욜로"))
           course_type = "one"; //힐링-알뜰하게
-        } else {
+        else
           course_type = "two"; //힐링-욜로
-        }
-      } else { //힐링이 아닐 경우 = 문화여행 or 레저/스포츠
-        switch (question_two) {
-          case "알뜰하게": //문화-알뜰
-            course_type = "three";
-            break;
-          case "욜로": //문화-욜로
-            course_type = "four";
-            break;
-          case "혼자": //레저스포츠
-            course_type = "five";
-            break;
-          case "친구들과":
-            course_type = "six";
-            break;
-          case "가족이랑":
-            course_type = "seven";
-            break;
-          case "연인이랑":
-            course_type = "eight";
-            break;
+
+      } else { //문화여행 or 레저/스포츠
+        if("알뜰하게".equals(question_two)) course_type = "three";
+        if("욜로".equals(question_two)) course_type = "four";
+        //TODO
+        if("혼자".equals(question_two)) {
+          course_type = "five";
+          companion = 4;
+        }else if("친구들과".equals(question_two)) {
+          course_type = "six";
+          companion = 3;
+        }else if("가족이랑".equals(question_two)) {
+          course_type = "seven";
+          companion = 2;
+        }else if("연인이랑".equals(question_two)) {
+          course_type = "eight";
+          companion = 1;
+        }else{
+          companion = 0;
         }
       }
+      webdata.put("companion", companion);
       webdata.put("course_type", course_type);
       rb.getConversationData().put("course_type", course_type);
-      response = "총 여행 기간은 얼마나 되나요?";
+      CommonUtil.printMapData(webdata);
+      rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
+
+      return rb.add(new SimpleResponse().setTextToSpeech("총 여행 기간은 얼마나 되나요?"))
+              .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+              .build();
     } else {
       return countFallback(request);
     }
-    CommonUtil.printMapData(webdata);
-    rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
-
-    return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
   }
 
   @ForIntent("RECOMMEND_STEP_TWO - fallback")
-  public ActionResponse intentRecommendStepTwoFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendStepTwoFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
   @ForIntent("RECOMMEND_STEP_DURATION")
-  public ActionResponse intentRecommendStepDuration(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendStepDuration(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
-    String response = "";
+
     String question_one = CommonUtil.makeSafeString(rb.getConversationData().get("question_one")); //테마
     System.out.println("question_one : " + question_one);
     String question_two = CommonUtil.makeSafeString(rb.getConversationData().get("question_two")); //비용 선택 / 일행 선택
@@ -843,28 +804,25 @@ public class KangwonTour extends DialogflowApp {
       webdata.put("question_two", question_two);
       webdata.put("question_one", question_one);
       rb.getConversationData().put("question_three", question_three);
-      response = "원하시는 지역을 선택해 주세요.";
     } else {
       return countFallback(request);
     }
     CommonUtil.printMapData(webdata);
-    rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
+    rb.getConversationData().put("recommand", CommonUtil.makeSafeString(webdata.get("command")));
 
-    return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+    return rb.add(new SimpleResponse().setTextToSpeech("원하시는 지역을 선택해 주세요."))
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("RECOMMEND_STEP_DURATION - fallback")
-  public ActionResponse intentRecommendStepDurationFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendStepDurationFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
   @ForIntent("RECOMMEND_SELECT_PLACE")
-  public ActionResponse intentRecommendSelectPlace(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendSelectPlace(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
     String response = "";
@@ -873,17 +831,15 @@ public class KangwonTour extends DialogflowApp {
     System.out.println("question_one : " + question_one);
     String question_two = CommonUtil.makeSafeString(rb.getConversationData().get("question_two"));
     System.out.println("question_two : " + question_two);
-    String question_three =
-        CommonUtil.makeSafeString(rb.getConversationData().get("question_three"));
+    String question_three = CommonUtil.makeSafeString(rb.getConversationData().get("question_three"));
     System.out.println("question_three : " + question_three);
     String course_type = CommonUtil.makeSafeString(rb.getConversationData().get("course_type"));
     System.out.println("course_type : " + course_type);
 
     rb.getConversationData().remove("fallback");
 
-    if (request.getIntent().equalsIgnoreCase("RECOMMEND_SELECT_PLACE_MORE")) {
+    if (request.getIntent().equalsIgnoreCase("RECOMMEND_SELECT_PLACE_MORE"))
       place = CommonUtil.makeSafeString(rb.getConversationData().get("place"));
-    }
 
     if (!CommonUtil.isEmptyString(place)) {
       System.out.println("place :" + place);
@@ -894,8 +850,7 @@ public class KangwonTour extends DialogflowApp {
       webdata.put("question_three", question_three); //여행 길이
       webdata.put("course_type", course_type); //코스타입 - RECOMMEND_STEP_TWO 참고
       rb.getConversationData().put("place", place);
-      response =
-          question_two + " 떠나는 " + question_one + " 코스입니다! 다른 코스를 보시려면. 다른 코스로 추천해줘, 라고 말해보세요!";
+      response = question_two + " 떠나는 " + question_one + " 코스입니다! 다른 코스를 보시려면. 다른 코스로 추천해줘, 라고 말해보세요!";
     } else {
       return countFallback(request);
     }
@@ -903,34 +858,32 @@ public class KangwonTour extends DialogflowApp {
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("RECOMMEND_SELECT_PLACE_MAP")
-  public ActionResponse IntentRecommendSelectPlaceMap(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse IntentRecommendSelectPlaceMap(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
-
-    String response = "길 안내를 시작합니다.";
     webdata.put("command", "RECO_STEP_LOCALE_MAP");
 
-    return rb.add(new SimpleResponse().setTextToSpeech(response))
+    return rb.add(new SimpleResponse().setTextToSpeech("길 안내를 시작합니다."))
             .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata).setSuppressMic(true))
             .build();
   }
 
   @ForIntent("RECOMMEND_SELECT_PLACE - fallback")
-  public ActionResponse intentRecommendSelectPlaceFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendSelectPlaceFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
 
+  /**
+   * 추천코스 - site Detail
+   */
   @ForIntent("RECOMMEND_COURSE_DETAIL")
-  public ActionResponse intentRecommendCourseDetail(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendCourseDetail(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     String response = "";
     Map<String, Object> webdata = new HashMap<>();
@@ -946,36 +899,30 @@ public class KangwonTour extends DialogflowApp {
       rb.getConversationData().put("number", number);
       webdata.put("reco_number", (int) number);
       webdata.put("command", "RECO_STEP_DETAIL");
-      response =
-          "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신"
-              + (int) number
-              + "번으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+      response = "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신"
+              + (int) number + "번으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
       if (!CommonUtil.isEmptyString(sleep) && sleep.equalsIgnoreCase("숙소")) {
         webdata.put("sleep", "숙소");
         rb.getConversationData().put("number", number);
-        response =
-            "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신 "
-                + (int) number
-                + "번 숙소로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+        response = "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신 "
+                + (int) number + "번 숙소로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
       }
     }
     CommonUtil.printMapData(webdata);
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
-        .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
-        .build();
+            .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
+            .build();
   }
 
   @ForIntent("RECOMMEND_SELECT_PLACE_MORE")
-  public ActionResponse intentRecommendPlaceMore(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendPlaceMore(ActionRequest request) throws ExecutionException, InterruptedException {
     return intentRecommendSelectPlace(request);
   }
 
   @ForIntent("RECOMMEND_COURSE_DETAIL - fallback")
-  public ActionResponse intentRecommendCourseDetailFallback(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentRecommendCourseDetailFallback(ActionRequest request) throws ExecutionException, InterruptedException {
     System.out.println("!--------- FALLBACK ---------->" + request.getIntent());
     return countFallback(request);
   }
