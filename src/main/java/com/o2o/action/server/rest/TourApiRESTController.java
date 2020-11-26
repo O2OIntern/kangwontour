@@ -18,10 +18,7 @@ public class TourApiRESTController {
     KtourapiRepository ktourapiRepository;
 
     @GetMapping(value = "/tourapi")
-    public List<KtourApi> getTourapi(
-            @RequestParam(value = "lang",defaultValue = "ko") String lang
-
-    ) {
+    public List<KtourApi> getTourapi(@RequestParam(value = "lang",defaultValue = "ko") String lang) {
 
         List<KtourApi>  ktourApis= new ArrayList<KtourApi>();;
         Iterable<KtourApi> iterable;
@@ -36,11 +33,8 @@ public class TourApiRESTController {
     }
 
     @GetMapping(value = "/findtoruapi")
-    public List<KtourApi> getTableTitle(
-            @RequestParam("title") String title
-            ,
-            @RequestParam(value = "lang",defaultValue = "ko") String lang
-    ) {
+    public List<KtourApi> getTableTitle(@RequestParam("title") String title,
+                                        @RequestParam(value = "lang",defaultValue = "ko") String lang ) {
 
         List<KtourApi> ktourApis = new ArrayList<KtourApi>();
         //Iterable<KtourApi> iterable = ktourapiRepository.findByTitle(title);
@@ -51,20 +45,18 @@ public class TourApiRESTController {
 
         return ktourApis;
     }
+
     @GetMapping(value = "/findcategory")
-    public List<KtourApi> getCategory(
-            @RequestParam("category") String category
-            ,
-            @RequestParam(value = "sigungucode" ) String sigungucode
-            ,
-            @RequestParam(value = "lang",defaultValue = "ko") String lang
-    ) {
+    public List<KtourApi> getCategory( @RequestParam("category") String category,
+                                        @RequestParam(value = "sigungucode" ) String sigungucode,
+                                        @RequestParam(value = "lang",defaultValue = "ko") String lang) {
 
         LOGGER.info("###Category  : " + category);
         LOGGER.info("###Sigungucode : " + sigungucode);
         LOGGER.info("###Lang : " + lang);
         List<KtourApi> ktourApis = new ArrayList<KtourApi>();
         Iterable<KtourApi> iterable;
+
         if (sigungucode.equals("32"))
             iterable = ktourapiRepository.findByCategoryAndLang(category, lang);
         else {
@@ -76,8 +68,7 @@ public class TourApiRESTController {
                 list.add("펜션");
                 list.add("게스트하우스");
                 iterable = ktourapiRepository.findByCategoryInAndLangAndSigungucode(list, lang, sigungucode) ;
-            }
-            else if (category.equals("관광지")) {
+            } else if (category.equals("관광지")) {
                 List<String> list = new ArrayList<>();
                 list.add("자연 속 힐링");
                 list.add("문화 속 힐링");
@@ -85,9 +76,7 @@ public class TourApiRESTController {
                 list.add("역사");
                 list.add("쇼핑");
                 iterable = ktourapiRepository.findByCategoryInAndLangAndSigungucode(list, lang, sigungucode) ;
-            }
-            else
-            {
+            } else {
                 iterable = ktourapiRepository.findByCategoryAndSigungucodeAndLang(category, sigungucode, lang);
             }
         }
@@ -95,6 +84,7 @@ public class TourApiRESTController {
 
         return ktourApis;
     }
+
     @GetMapping(value = "/findsigungucode")
     public List<KtourApi> getSigungucode(@RequestParam("sigungucode") String code, @RequestParam(value = "lang",defaultValue = "ko") String lang) {
 
@@ -106,13 +96,9 @@ public class TourApiRESTController {
     }
 
     @GetMapping(value = "/findcat3")
-    public List<KtourApi> getCat3(
-            @RequestParam("cat3") String cat3
-            ,
-            @RequestParam(value = "lang",defaultValue = "ko") String lang
-            ,
-            @RequestParam("sigungucode") String code
-    ) {
+    public List<KtourApi> getCat3( @RequestParam("cat3") String cat3,
+                                    @RequestParam(value = "lang",defaultValue = "ko") String lang,
+                                    @RequestParam("sigungucode") String code ) {
 
         List<KtourApi> ktourApis = new ArrayList<KtourApi>();
         Iterable<KtourApi> iterable;
@@ -125,13 +111,11 @@ public class TourApiRESTController {
 
         return ktourApis;
     }
-//
+
 //    public List<KtourApi> getTableSigungucode(@RequestParam("sigungucode") String code, Sort sort) {
-//
 //        List<KtourApi> ktourApis = new ArrayList<KtourApi>();
 //        Iterable<KtourApi> iterable = ktourapiRepository.findBySigungucode(code, sort);
 //        iterable.forEach(ktourApis::add);
-//
 //        return ktourApis;
 //    }
 
@@ -181,11 +165,14 @@ public class TourApiRESTController {
         return response;
     }
 
+    /**
+     * 숙소 추천 by 시군구, 테마
+     * 20.11.26 음식점 검색 추가
+     */
     @GetMapping(value = "/sigungu/accommodation")
     public List<KtourApi> getAccommodationBySigungucodeAndTheme(@RequestParam("sigungucode") String sigungucode, @RequestParam("theme") String theme) {
 
         System.out.println("sigungucode >>>> " + sigungucode);
-
         List<String> list = new ArrayList<>();
 
         if("one".equals(theme) || "three".equals(theme)) {
@@ -206,12 +193,12 @@ public class TourApiRESTController {
             list.add("모텔");
             list.add("호텔");
             list.add("펜션");
+        } else if("음식점".equals(theme)){
+            list.add(theme);
         }
 
         List<KtourApi> result = ktourapiRepository.queryAccoBySigungucodeAndTheme(sigungucode, list);
-
         System.out.println("accommodation result index 1 >>> " + result.size());
-
         return result;
     }
 
