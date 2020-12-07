@@ -16,13 +16,11 @@ public class KtourApi implements Comparable<KtourApi> {
     String cat3;
 
     String contentid;
-
     String contenttypeid;
 
     String firstimage;
 
     String mapx;
-
     String mapy;
 
     String readcount;
@@ -34,35 +32,29 @@ public class KtourApi implements Comparable<KtourApi> {
     String lang;
     String film;
     String actor;
-
     public String getActor() {
         return actor;
     }
-
     public void setActor(String actor) {
         this.actor = actor;
     }
 
+    String filmtitle;
     public String getFilmtitle() {
         return filmtitle;
     }
-
     public void setFilmtitle(String filmTitle) {
         this.filmtitle = filmTitle;
     }
 
-    String filmtitle;
-
     @Transient
     double distance;
 
-    public KtourApi() {
-    }
+    public KtourApi() {}
 
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
@@ -70,7 +62,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getAreacode() {
         return areacode;
     }
-
     public void setAreacode(String areacode) {
         this.areacode = areacode;
     }
@@ -78,7 +69,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getCat3() {
         return cat3;
     }
-
     public void setCat3(String cat3) {
         this.cat3 = cat3;
     }
@@ -86,7 +76,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getContentid() {
         return contentid;
     }
-
     public void setContentid(String contentid) {
         this.contentid = contentid;
     }
@@ -94,7 +83,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getContenttypeid() {
         return contenttypeid;
     }
-
     public void setContenttypeid(String contenttypeid) {
         this.contenttypeid = contenttypeid;
     }
@@ -102,7 +90,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getFirstimage() {
         return firstimage;
     }
-
     public void setFirstimage(String firstimage) {
         this.firstimage = firstimage;
     }
@@ -110,15 +97,12 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getMapx() {
         return mapx;
     }
-
     public void setMapx(String mapx) {
         this.mapx = mapx;
     }
-
     public String getMapy() {
         return mapy;
     }
-
     public void setMapy(String mapy) {
         this.mapy = mapy;
     }
@@ -126,7 +110,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getReadcount() {
         return readcount;
     }
-
     public void setReadcount(String readcount) {
         this.readcount = readcount;
     }
@@ -134,15 +117,11 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getSigungucode() {
         return sigungucode;
     }
-
     public void setSigungucode(String sigungucode) {
         this.sigungucode = sigungucode;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
+    public String getTitle() { return title; }
     public void setTitle(String title) {
         this.title = title;
     }
@@ -150,7 +129,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getAddr1() {
         return addr1;
     }
-
     public void setAddr1(String addr1) {
         this.addr1 = addr1;
     }
@@ -158,7 +136,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getTel() {
         return tel;
     }
-
     public void setTel(String tel) {
         this.tel = tel;
     }
@@ -166,7 +143,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getCategory() {
         return category;
     }
-
     public void setCategory(String category) {
         this.category = category;
     }
@@ -174,7 +150,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getLang() {
         return lang;
     }
-
     public void setLang(String lang) {
         this.lang = lang;
     }
@@ -184,6 +159,7 @@ public class KtourApi implements Comparable<KtourApi> {
     public void setDistance(double distance) {
         this.distance = distance;
     }
+
     @Override
     public int compareTo(@NotNull KtourApi o) {
         if (distance > o.distance)
@@ -196,7 +172,6 @@ public class KtourApi implements Comparable<KtourApi> {
     public String getFilm() {
         return film;
     }
-
     public void setFilm(String film) {
         this.film = film;
     }

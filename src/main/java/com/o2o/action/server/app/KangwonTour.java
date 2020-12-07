@@ -8,8 +8,11 @@ import com.google.gson.reflect.TypeToken;
 import com.o2o.action.server.db.KtourApi;
 import com.o2o.action.server.repo.KtourapiRepository;
 import com.o2o.action.server.util.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -36,7 +39,7 @@ public class KangwonTour extends DialogflowApp {
       webdata.put("command", "MAIN");
       CommonUtil.printMapData(webdata);
       rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
-      return rb.add(new SimpleResponse().setTextToSpeech("강원도 투어입니다. 저는 여행을 함께할 범이 라고 해요. 무엇을 도와드릴까요?"))
+      return rb.add(new SimpleResponse().setTextToSpeech("강원도 투어입니다. 저는 여행을 함께할  풍이라고 해요. 무엇을 도와드릴까요?"))
               .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
               .build();
     }
@@ -139,8 +142,7 @@ public class KangwonTour extends DialogflowApp {
     webdata.put("command","FILM_DETAIL");
     rb.getConversationData().put("film_info", result.get((number - 1)));
 
-    response = "선택하신 " +
-            number
+    response = "선택하신 " + number
             + " 번째 촬영지 입니다. 원하는 정보를 클릭하거나 제게 말을 걸어보세요.";
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
@@ -821,6 +823,9 @@ public class KangwonTour extends DialogflowApp {
     return countFallback(request);
   }
 
+  @Autowired
+  RestProvider restProvider;
+
   @ForIntent("RECOMMEND_SELECT_PLACE")
   public ActionResponse intentRecommendSelectPlace(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
@@ -831,8 +836,8 @@ public class KangwonTour extends DialogflowApp {
     System.out.println("question_one : " + question_one);
     String question_two = CommonUtil.makeSafeString(rb.getConversationData().get("question_two"));
     System.out.println("question_two : " + question_two);
-    String question_three = CommonUtil.makeSafeString(rb.getConversationData().get("question_three"));
-    System.out.println("question_three : " + question_three);
+    String period = CommonUtil.makeSafeString(rb.getConversationData().get("question_three"));
+    System.out.println("question_three : " + period); //days
     String course_type = CommonUtil.makeSafeString(rb.getConversationData().get("course_type"));
     System.out.println("course_type : " + course_type);
 
@@ -841,13 +846,26 @@ public class KangwonTour extends DialogflowApp {
     if (request.getIntent().equalsIgnoreCase("RECOMMEND_SELECT_PLACE_MORE"))
       place = CommonUtil.makeSafeString(rb.getConversationData().get("place"));
 
-    if (!CommonUtil.isEmptyString(place)) {
-      System.out.println("place :" + place);
+    if (!CommonUtil.isEmptyString(place)) { System.out.println("place :" + place);
+      String sigunguCd = restProvider.getSigunguCd(place);
+
+      KtourApi stay = null;
+      if (!"당일치기".equals(period)) { //TODO 숙소먼저 가져온다. if 1박 이상이라면 ...
+        KtourApi[] accomData = restProvider.callAccomAndRestApi(sigunguCd, course_type);
+        List<Integer> randomIds = restProvider.getRanNums(1, accomData.length);
+        int randomId = randomIds.get(0);
+        stay = accomData[randomId];
+        webdata.put("accomData", stay);
+      }
+      //TODO
+      String scheduledData = restProvider.callScheduler(sigunguCd, course_type, period, stay);
+      webdata.put("scheduledData", scheduledData);
+
       webdata.put("command", "RECO_STEP_LOCALE");
       webdata.put("place", place); //장소
       webdata.put("question_one", question_one); //테마
       webdata.put("question_two", question_two); //비용 or 일행 선택
-      webdata.put("question_three", question_three); //여행 길이
+      webdata.put("question_three", period); //여행 길이
       webdata.put("course_type", course_type); //코스타입 - RECOMMEND_STEP_TWO 참고
       rb.getConversationData().put("place", place);
       response = question_two + " 떠나는 " + question_one + " 코스입니다! 다른 코스를 보시려면. 다른 코스로 추천해줘, 라고 말해보세요!";
@@ -981,7 +999,7 @@ public class KangwonTour extends DialogflowApp {
     }
 
     if (request.getRawInput().getQuery().equalsIgnoreCase("INFO_DATA_NULL")) {
-      response = "죄송해요, 요청하신 정보를 찾지 못했어요. 대신 범이가 추천하는 곳은 어떠신가요? 원하는 정보를 클릭하거나, 제게 말을 걸어 보세요!";
+      response = "죄송해요, 요청하신 정보를 찾지 못했어요. 대신 풍이가 추천하는 곳은 어떠신가요? 원하는 정보를 클릭하거나, 제게 말을 걸어 보세요!";
       webdata.put("command", "INFO_RESULT_FALLBACK");
     } else if (request.getRawInput().getQuery().equalsIgnoreCase("SEARCH_DATA_NULL")) {
       response = "죄송해요, 요청하신 정보는 없는것 같아요. 대신 다른 검색어로 찾아볼까요?";

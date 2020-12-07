@@ -36,10 +36,12 @@ public interface KtourapiRepository extends CrudRepository<KtourApi, Long> {
     @Query(value = "select x.* from public.ktour_api x where upper(regexp_replace(x.title, '[[:punct:]]|[[:space:]]', '', 'g')) like concat('%',upper(regexp_replace(:title, '[[:punct:]]|[[:space:]]', '', 'g')), '%') and lang in (:Lang)", nativeQuery = true)
     public List<KtourApi> queryByTitleAndLang(String title, String Lang);
     //그룹핑 정렬 -> 모든 지역의 카운트 불러오기(sigungu 코드 이용) 지도 보여줄 때 카운트 api 함수 쓰고 지역 선택시 관광지 불러오도록
-    @Query(value = "select sigungucode, count(*) from public.ktour_api where sigungucode != '' and mapx != '' and theme IN (:theme) group by sigungucode order by sigungucode", nativeQuery = true)
+    @Query(value = "select sigungucode, count(*) from public.ktour_api where sigungucode != '' and mapx != '' and lang = 'ko' and theme IN (:theme) group by sigungucode order by sigungucode", nativeQuery = true)
     public List<Map<String, Integer>> queryCountBySigungucode(List<String> theme);
-    @Query(value = "select * from public.ktour_api where sigungucode = :sigungucode and category in (:accType)", nativeQuery = true)
+
+    @Query(value = "select * from public.ktour_api where sigungucode = :sigungucode and lang = 'ko'  and category in (:accType)", nativeQuery = true)
     public List<KtourApi> queryAccoBySigungucodeAndTheme(String sigungucode, List<String> accType);
+
     public List<KtourApi> findByFilm(String film);
     public List<KtourApi> findByActorContaining(String actor);
     public List<KtourApi> findByFilmtitleContaining(String filmTitle);

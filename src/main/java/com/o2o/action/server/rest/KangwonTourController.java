@@ -24,21 +24,12 @@ public class KangwonTourController {
     @Autowired
     private KangwonTour kangwontour;
 
-    //@Autowired
-    //private CategoryRepository categoryRepository;
-
-//    public KangwonTourController() {
-//        kangwontour = new KangwonTour();
-//    }
-
     @RequestMapping(value = "/kangwontour", method = RequestMethod.POST)
     public @ResponseBody
-    String processActions(@RequestBody String body, HttpServletRequest request,
-                          HttpServletResponse response) {
+    String processActions(@RequestBody String body, HttpServletRequest request, HttpServletResponse response) {
         String jsonResponse = null;
         try {
             System.out.println("request : " + body);
-
             JSONParser jsonParse = new JSONParser();
 
             JSONObject jsonObject = (JSONObject) jsonParse.parse(body);
