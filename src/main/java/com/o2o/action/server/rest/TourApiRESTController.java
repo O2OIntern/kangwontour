@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.*;
 
 @RestController
@@ -118,6 +121,86 @@ public class TourApiRESTController {
 //        iterable.forEach(ktourApis::add);
 //        return ktourApis;
 //    }
+
+    @PersistenceContext
+    private EntityManager em;
+
+    @GetMapping(value = "/stayAndFoodCnt")
+    public List<HashMap> getStayAndFoodCnt(@RequestParam("theme") String theme) {
+        System.out.println("테마 String >>> "+theme);
+        ArrayList<String> attrs = new ArrayList<>();
+        ArrayList<String> accoms = new ArrayList<>();
+        if("one".equals(theme)) {
+            attrs.add("문화 속 힐링");
+            attrs.add("전통");
+            accoms.add("모텔");
+            accoms.add("게스트하우스");
+        } else if("two".equals(theme)) {
+            attrs.add("자연 속 힐링");
+            attrs.add("문화 속 힐링");
+            accoms.add("호텔");
+            accoms.add("콘도");
+            accoms.add("펜션");
+        } else if("three".equals(theme)) {
+            attrs.add("전통");
+            accoms.add("모텔");
+            accoms.add("게스트하우스");
+        } else if("four".equals(theme)) {
+            attrs.add("문화 속 힐링");
+            attrs.add("액티비티");
+            attrs.add("쇼핑");
+            accoms.add("호텔");
+            accoms.add("콘도");
+            accoms.add("펜션");
+        } else if("five".equals(theme)) {
+            attrs.add("자연 속 힐링");
+            attrs.add("액티비티");
+            accoms.add("게스트하우스");
+            accoms.add("호텔");
+        } else if("six".equals(theme)) {
+            attrs.add("문화 속 힐링");
+            attrs.add("액티비티");
+            accoms.add("모텔");
+            accoms.add("호텔");
+            accoms.add("게스트하우스");
+        } else if("seven".equals(theme)) {
+            attrs.add("문화 속 힐링");
+            attrs.add("액티비티");
+            accoms.add("호텔");
+            accoms.add("펜션");
+            accoms.add("콘도");
+        } else if("eight".equals(theme)) {
+            attrs.add("문화 속 힐링");
+            attrs.add("액티비티");
+            accoms.add("모텔");
+            accoms.add("호텔");
+            accoms.add("펜션");
+        }
+        System.out.println("테마 LIST >>> "+attrs.toString()+", " +accoms.toString());
+        String queryStr = "select sigungucode, "
+                + "count(CASE WHEN category in (:attrs)  THEN category END) attr_cnt1,"
+                + "count(CASE WHEN category in (:accoms)   THEN category END) accom_cnt2";
+
+//        for(int i=0; i< list.size(); i++) {
+//            queryStr += "count(CASE WHEN category = ";
+//            queryStr += "'"+list.get(i)+"'";
+//            queryStr += " THEN category END) cnt" + (i+1);
+//            if(i<list.size()-1) queryStr += ", ";
+//        }
+        queryStr += " from public.ktour_api "
+                    + "where sigungucode != '' "
+                    + "and mapx != '' "
+                    + "and lang = 'ko' "
+                    + "and ( theme IN (:attrs) ) or ( theme IN (:accoms) ) "
+                    + "group by sigungucode "
+                    + "order by TO_NUMBER(sigungucode, '99G999D9S')";
+        System.out.println("queryStr >>> "+ queryStr);
+        Query query = em.createNativeQuery(queryStr)
+                        .setParameter("attrs", attrs)
+                        .setParameter("accoms", accoms);//TODO
+
+        return query.getResultList();
+    }
 
     @GetMapping(value = "/sigungu/count")
     public Map<Integer, Integer> getCountBySigungucode(@RequestParam("theme") String theme) {
