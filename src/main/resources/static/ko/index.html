@@ -176,8 +176,8 @@
 			</div>
 <!--			</div>-->
 		</div>
-		
-<!-- 테스트중	-->
+
+		<!-- 추천코스 result -->
 		<div id="reco_step_locale" class="recommended">
 			<div id="reco_step_locale_fixed">
 				<div id="reco_step_locale_header" class="reco_header">
@@ -185,8 +185,8 @@
 				</div>
 <!--				<span onclick="sendText('이전으로')" class="previous"><img src="./img/local_food_02.png"/></span>-->
 				<div id="reco_step_locale_title" class="reco_title">나홀로 떠나는 레포츠 코스!</div>
-					<div id="reco_step_locale_line" class="line"></div>
-					<div id="reco_step_locale_hashtag" class="hashtag">#힐링코스 #나홀로여행 #1박2일</div>
+				<div id="reco_step_locale_line" class="line"></div>
+				<div id="reco_step_locale_hashtag" class="hashtag">#힐링코스 #나홀로여행 #1박2일</div>
 			</div>
 			<div id="reco_step_locale_body">
 				<div id="blank_space">
@@ -195,17 +195,15 @@
 				<div id="reco_step_locale_acco_subject" class="reco_step_locale_subject"></div>
 				<div id="reco_step_locale_acco"></div>
 				<div id="reco_step_locale_course_subject" class="reco_step_locale_subject"></div>
-				<div id="reco_step_locale_buttons">
-					<span id="getNavigation" class="localeButtons"><i class="fas fa-map-marked-alt"></i> 길찾기 실행</span>
-					<span id="getOtherCourse" class="localeButtons" onclick="sendText('다른 코스로 추천해줘')"><i class="fas fa-sync"></i> 다른 코스 보기</span>
-				</div>
-				<!-- Tmap 출력용 div-->
+<!--				<div id="reco_step_locale_buttons">-->
+<!--					<span id="getNavigation" class="localeButtons"><i class="fas fa-map-marked-alt"></i> 길찾기 실행</span>-->
+<!--					<span id="getOtherCourse" class="localeButtons" onclick="sendText('다른 코스로 추천해줘')"><i class="fas fa-sync"></i> 다른 코스 보기</span>-->
+<!--				</div>-->
+<!--
 				<div id="reco_step_locale_tmapview"></div>
 				<div id="reco_step_locale_course">
 					<div id="reco_step_locale_course_day1" class="locale_day">
 						<div class="verticalLine"></div>
-<!--						let circle1 = document.getElementById("locale-circle1").getBoundingClientRect() 
-					circle5.bottom - circle1.bottom	-->
 						<div class="course-list">
 							<div id="locale-circle1" class="locale-circle">
 								<div class="result-number"> 1 </div>
@@ -282,7 +280,7 @@
 							</div>
 						</div>	
 					</div>
-<!--					둘째날-->
+
 					<div id="locale_day2" class="day_divider">
 						<div class="horizontalLine left"></div>둘째날 <span><i class="fas fa-angle-double-down"></i></span><div class="horizontalLine right"></div>
 					</div>
@@ -364,7 +362,7 @@
 							</div>
 						</div>	
 					</div>
-<!--					셋째날-->
+
 					<div id="locale_day3" class="day_divider">
 						<div class="horizontalLine left"></div>셋째날 <span><i class="fas fa-angle-double-down"></i></span><div class="horizontalLine right"></div>
 					</div>
@@ -445,13 +443,12 @@
 								</div>
 							</div>
 						</div>	
-					</div> <!-- reco_step_locale_course_day3 -->
-				</div> <!-- reco_step_locale_course -->
+					</div> reco_step_locale_course_day3
+				</div> --> <!-- reco_step_locale_course -->
 				<div id="lazy_border"></div>
 			</div> <!-- reco_step_locale_body -->
 		</div> <!-- reco_step_locale -->
-
-			<div id="reco_step_detail" class="option"></div>
+		<div id="reco_step_detail" class="option"></div>
 	</div>
 
 	<!-- 종료화면 -->
