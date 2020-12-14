@@ -160,12 +160,6 @@ class Action {
                 document.getElementById('endImage').style.display = "none";
                 reco_step_two_view(data);
             },
-            RECO_STEP_RESULT: (data) => {
-                console.log("실행 : RECO_STEP_RESULT()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_step_result_view(data);
-            },
             RECO_STEP_LOCALE: (data) => {
                 console.log("실행 : RECO_STEP_LOCALE()");
                 clearInterval(endtimer);
@@ -185,47 +179,18 @@ class Action {
                 document.getElementById('endImage').style.display = "none";
                 reco_step_locale_map_view(data);
             },
+            RECO_STEP_RESULT: (data) => {
+                console.log("실행 : RECO_STEP_RESULT()");
+                clearInterval(endtimer);
+                document.getElementById('endImage').style.display = "none";
+                reco_step_result_view(data);
+            },
+            // 추천코스 - 상세 페이지
             RECO_STEP_DETAIL: (data) => {
                 console.log("실행 : RECO_STEP_DETAIL()");
                 clearInterval(endtimer);
                 document.getElementById('endImage').style.display = "none";
                 reco_step_detail_view(data);
-            },
-            RECO_OPTION_DURING: (data) => {
-                console.log("실행 : RECO_OPTION_DURING()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_option_during_view(data);
-            },
-            RECO_OPTION_AGE: (data) => {
-                console.log("실행 : RECO_OPTION_AGE()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_option_age_view(data);
-            },
-            RECO_OPTION_TOGETHER: (data) => {
-                console.log("실행 : RECO_OPTION_TOGETHER()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_option_together_view(data);
-            },
-            RECO_OPTION_TRAFFIC: (data) => {
-                console.log("실행 : RECO_OPTION_TRAFFIC()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_option_traffic_view(data);
-            },
-            RECO_OPTION_PLACE: (data) => {
-                console.log("실행 : RECO_OPTION_PLACE()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_option_place_view(data);
-            },
-            RECO_OPTION_RESULT: (data) => {
-                console.log("실행 : RECO_OPTION_RESULT()");
-                clearInterval(endtimer);
-                document.getElementById('endImage').style.display = "none";
-                reco_option_result_view(data);
             },
             END: (data) => {
                 console.log("실행 : RECO_OPTION_RESULT()");
@@ -344,10 +309,7 @@ class Action {
                 }
             },
             FILM_DETAIL: function (data) {
-                console.log("실행 : FILM_DETAIL");
-                console.log(data.info);
-                console.log(data.info.title);
-
+                console.log("실행 : FILM_DETAIL \ndata.info >> "+data.info);
                 const tag = parseInt(data.info_number - 1);
 
                 if( resultidinfo && !data.fallback ) {
@@ -365,11 +327,7 @@ class Action {
                     document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_charafallback.png");
                 }
             }
-            // MYCOURSE: function(data){
-            //   mycourse_view(data);
-            // },
         };
-
     }
 
     /*
@@ -428,12 +386,10 @@ class Action {
 			// 				setImage("startImage", "./img/p2-4.png");
 			// 		}
 			// 	}
-			// 	if(markName === 'START') {
+			// 	if(markName === 'START')
 			// 		console.log( "TTS Started!" );
-			// 	}
-			// 	if(markName === 'ERROR') {
+			// 	if(markName === 'ERROR')
 			// 		console.log( "TTS ERROR!" );
-			// 	}
             // },
         };
 
