@@ -39,7 +39,7 @@ public class KangwonTour extends DialogflowApp {
       webdata.put("command", "MAIN");
       CommonUtil.printMapData(webdata);
       rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
-      return rb.add(new SimpleResponse().setTextToSpeech("강원도 투어입니다. 저는 여행을 함께할  풍이라고 해요. 무엇을 도와드릴까요?"))
+      return rb.add(new SimpleResponse().setTextToSpeech("시네마 플레이스입니다. 저는 여행을 함께할  풍이라고 해요. 무엇을 도와드릴까요?"))
               .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
               .build();
     }
@@ -837,7 +837,7 @@ public class KangwonTour extends DialogflowApp {
     String question_two = CommonUtil.makeSafeString(rb.getConversationData().get("question_two"));
     System.out.println("question_two : " + question_two);
     String period = CommonUtil.makeSafeString(rb.getConversationData().get("question_three"));
-    System.out.println("question_three : " + period); //days
+    System.out.println("question_three : " + period);
     String course_type = CommonUtil.makeSafeString(rb.getConversationData().get("course_type"));
     System.out.println("course_type : " + course_type);
 
@@ -903,31 +903,45 @@ public class KangwonTour extends DialogflowApp {
   @ForIntent("RECOMMEND_COURSE_DETAIL")
   public ActionResponse intentRecommendCourseDetail(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
-    String response = "";
-    Map<String, Object> webdata = new HashMap<>();
-    double number = Double.parseDouble(String.valueOf(request.getParameter("number")));
-    String sleep = CommonUtil.makeSafeString(request.getParameter("sleep"));
     rb.getConversationData().remove("fallback");
     rb.getConversationData().remove("film_info");
 
+    Map<String, Object> webdata = new HashMap<>();
     webdata.put("command", "INFO_DETAIL");
+    String response = "";
 
-    if (!Double.isNaN(number)) {
-      System.out.println("data -> number : " + number);
+    String sleep = CommonUtil.makeSafeString(request.getParameter("sleep"));
+
+    String numParam = String.valueOf(request.getParameter("number"));
+    if(!CommonUtil.isEmptyString(numParam)) {
+      int number = (int) Double.parseDouble(numParam);
+
+    //if (!Double.isNaN(number)) {
+      System.out.println("request number : " + number);
       rb.getConversationData().put("number", number);
-      webdata.put("reco_number", (int) number);
-      webdata.put("command", "RECO_STEP_DETAIL");
+      webdata.put("reco_number", number); //(int)
+
+
       response = "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신"
-              + (int) number + "번으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
-      if (!CommonUtil.isEmptyString(sleep) && sleep.equalsIgnoreCase("숙소")) {
+              + number + "번으로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+
+//      if (!CommonUtil.isEmptyString(sleep) ) { //&& sleep.equalsIgnoreCase("숙소")
+//        webdata.put("sleep", "숙소");
+//        rb.getConversationData().put("number", number);
+//        response = "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신 "
+//                + (int) number + "번 숙소로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+//      }
+    }else{ // 숙소를 선택한 경우
+      if (!CommonUtil.isEmptyString(sleep)) {
         webdata.put("sleep", "숙소");
-        rb.getConversationData().put("number", number);
-        response = "<speak><break time=\"1000ms\"/><mark name=\"NEXT\"/>선택하신 "
-                + (int) number + "번 숙소로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+//        response = "<speak><break time=\"1000ms\"/>" +
+//                "<mark name=\"NEXT\"/>숙소로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!</speak>";
+        response = "숙소로 안내를 원하시면 가는 길 알려줘 라고 말해보세요!";
       }
     }
+    webdata.put("command", "RECO_STEP_DETAIL");
     CommonUtil.printMapData(webdata);
-    rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
+    rb.getConversationData().put("recommand", CommonUtil.makeSafeString(webdata.get("command")));
 
     return rb.add(new SimpleResponse().setTextToSpeech(response))
             .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
@@ -952,25 +966,20 @@ public class KangwonTour extends DialogflowApp {
     Map<String, Object> webdata = new HashMap<>();
     rb.getConversationData().remove("fallback");
 
-    String response = "";
-
-    response = "강원도 투어를 종료하시겠습니까?";
     webdata.put("command", "END");
     CommonUtil.printMapData(webdata);
     rb.getConversationData().put("recommand",CommonUtil.makeSafeString(webdata.get("command")));
   
-    return rb.add(new SimpleResponse().setTextToSpeech(response))
+    return rb.add(new SimpleResponse().setTextToSpeech("시네마 플레이스를 종료하시겠습니까?"))
         .add(new HtmlResponse().setUrl(URL).setUpdatedState(webdata))
         .build();
   }
 
   @ForIntent("actions_intent_CANCEL - no")
-  public ActionResponse intentActionsIntentCancelNo(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentActionsIntentCancelNo(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
-    String response = "";
-    response = "Exit Gangwon tour.";
-    return rb.add(new SimpleResponse().setTextToSpeech(response)).endConversation().build();
+    return rb.add(new SimpleResponse().setTextToSpeech("Exit Gangwon tour."))
+            .endConversation().build();
   }
 
   private ActionResponse countFallback(ActionRequest request) {
