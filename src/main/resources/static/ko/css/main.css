@@ -721,9 +721,9 @@ img[usemap] {
 .verticalLine {
 	display: block;
 	position: absolute;
-	left: 2.4rem;
+	left: 0.9rem;/*2.4rem;*/
 	width: 0.125rem;
-	height: 646.375px;
+	height:  185px;/*646.375px;*/
 	background-size: 100%;
 	background-color: #a7a7a7;
 }
@@ -778,12 +778,11 @@ img[usemap] {
 .locale-box-disc-addr {
 	flex: 1;
 	width: 9.7rem;
-	margin: 0.3rem 0.5rem;
+	margin: 0 0.5rem; /*0.3rem 0.5rem;*/
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	color: #a7a7a7;
-	color: gray;
 }
 /*.locale-box-disc-addr > i {*/
 /*	color: gray;*/
