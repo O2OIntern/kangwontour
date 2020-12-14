@@ -131,8 +131,6 @@ async function info_search_result_view(data) {
 async function info_search_detail_view(data) {
 	console.log("실행 : info_search_detail_view() >>> "+JSON.stringify(data));
 
-	fallback = data.fallback;
-
 	hideall();
 	document.getElementById("info").style.display = 'block';
 	document.getElementById("info_result").style.display = "block";
@@ -237,7 +235,7 @@ async function info_search_detail_view(data) {
 			if (myObj.saleitem) facilities.innerHTML += `- 판매 품목 : ${myObj.saleitem}<br>`;
 		});
 
-		fetch(`https://actions.o2o.kr/devsvr10/finddetailimg?contentid=${resultidinfo[0].contentid}`)
+		fetch(`${dblink}finddetailimg?contentid=${resultidinfo[0].contentid}`)
 		.then( res => res.json())
 		.then( jsonData	=> {
 			console.log(`3: json 응답 갯수 : ${jsonData.length} 개 \n data >>> ${JSON.stringify(jsonData)}`);
@@ -252,101 +250,6 @@ async function info_search_detail_view(data) {
 	}
 }
 
-// /**
-//  * API 검색 결과 리스트를 띄우는 화면
-//  * @param {*} data Fulfillment로부터 받은 데이터
-//  * @param {*} wasDataNull 검색 결과가 0개인 오류를 받았었는가
-//  */
-// function info_result_view_before(data, wasDataNull) {
-//
-// 	if (data.fallback || wasDataNull) { // 3번 전까지 호랑이 땀흘리는 사진 넣기
-// 		document.getElementById("info_result_chara_image").setAttribute("src", `./img/p17.png`);
-// 	} else {
-// 		document.getElementById("info_result_chara_image").setAttribute("src", `./img/p6-2_chara.png`);
-// 	}
-
-// 	let place, type, lon, lat;
-// 	let smalltype = [];
-//
-// 	// 위치, 시설 받기
-// 	if (data.lon || data.lat) {
-// 		lon = data.lon;
-// 		lat = data.lat;
-// 	} else {
-// 		place = dataplace(data.place);
-// 	}
-//
-// 	type = datatype(data);
-// 	smalltype = putsmalltype(type, data);
-//
-// 	var xmladdr = data.lon || data.lat
-// 			? `http://api.visitkorea.or.kr/openapi/service/rest/KorService/locationBasedList?ServiceKey=${servicekey}&contentTypeId=${type}&mapX=${lon}&mapY=${lat}&radius=2000&listYN=Y&MobileOS=ETC&MobileApp=TourAPI3.0_Guide&arrange=A&numOfRows=10000&pageNo=1&_type=json`
-// 			: `http://api.visitkorea.or.kr/openapi/service/rest/KorService/areaBasedList?ServiceKey=${servicekey}&contentTypeId=&areaCode=32&listYN=Y&MobileOS=ETC&MobileApp=TourAPI3.0_Guide&arrange=A&numOfRows=10000&pageNo=1&sigunguCode=${place}&_type=json`;
-//
-// 	fetch(xmladdr).then( response => {
-// 		response.json().then( myObj => {
-// 			console.log(myObj);
-// 			console.log(smalltype); //소분류
-// 			const count = myObj.response.body.totalCount;
-// 			let pdata = [];
-// 			let results = [];
-//
-// 			const ITEM = myObj.response.body.items.item;
-//
-// 			if (count == 0) {
-// 				sendText("INFO_DATA_NULL");
-// 			} else if (count == 1) {
-// 				results[0] = ITEM;
-// 			} else {
-// 				if (!wasDataNull) {
-// 					for (var addItem = 0; addItem < ITEM.length; addItem++) {
-// 						smalltype.forEach( word => {
-// 							if (ITEM[addItem].cat3 == word) {
-// 								results.push(ITEM[addItem]);
-// 							}
-// 						})
-// 					}
-// 				} else {
-// 					results = ITEM;
-// 				}
-// 			}
-//
-// 			if (results.length < 1) {
-// 				sendText("INFO_DATA_NULL");
-// 			} else {
-// 				hideall();
-// 				document.getElementById("info").style.display = 'block';
-// 				document.getElementById("info_result").style.display = "block";
-// 				document.getElementById("info_result_tmapview").innerHTML = "";
-// 				document.getElementById("info_result_list").innerHTML = `
-// 					<span class="list-total-count" >총 ${results.length}건</span>`;
-//
-// 				for (var i = 0; i < results.length; i++) {
-// 					var imgURL = results[i].firstimage ? replaceimage(results[i].firstimage) : "./img/icon/noimage.png";
-// 					pdata.push({ "lng": results[i].mapx, "lat": results[i].mapy, "parent": "info_result" });
-//
-// 					document.getElementById("info_result_list").innerHTML += `
-// 						<div id = "resultlist${i}" class="list-box" onclick="resultnumber(${parseInt(i + 1)})">
-// 						<div id="info_result-circle${i}" class="result-circle">
-// 							<div class="result-number">${parseInt(i + 1)}</div>
-// 						</div>
-// 						<div class="result-img"><img src="${imgURL}"></div>
-// 						<div class="result-text">
-// 							<div class="result-title">
-// 								[${parseInt(i + 1)}] ${results[i].title}
-// 							</div>
-// 							<div class="result-addr">
-// 								<i class='fas fa-map-marker-alt'></i>  ${results[i].addr1 ? results[i].addr1 : "주소정보 없음"}
-// 							</div>
-// 						</div>`;
-// 					resultidinfo[i] = results[i];
-// 				}
-// 				info_result_map(pdata, "info_result_tmapview");
-// 			}
-// 		})
-// 	});
-// }
-
 //추가
 async function info_result_view(data) {
 	console.log(`실행 : info_result_view() >>> data >>> `+data);
@@ -354,8 +257,7 @@ async function info_result_view(data) {
 	document.getElementById("welcome").style.backgroundImage = ``;
 
 	const getResult = async (wasDataNull = false) => {
-		let myObj = [];
-		let result = [];
+		let myObj = [], result = [];
 
 		let smalltype = putsmalltype(data);
 		if (smalltype.length === 1) Object.assign(data, {"cat3" : true});
@@ -496,7 +398,6 @@ async function info_result_view(data) {
 	loadItems();
 }
 
-
 /* 리스트 -> 상세페이지 */
 function info_detail_view(data) {
 	console.log("실행 : INFO_DETAIL_VIEW()");
@@ -513,192 +414,13 @@ function info_detail_view(data) {
 
 		setTimeout( ()=>drawDetail(data) , 1000);
 
-	} else {
+	} else { //fallback
 		document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_charafallback.png");
 	}
 }
 
-function drawDetail_tourapi(data) {
-	console.log(`실행 : drawDetail`);
-	if(data.reco_detail) {
-		document.getElementById("info").style.display = 'block';
-		document.getElementById("info_result").style.display = "block";
-	}
-	document.getElementById("info_result_list").innerHTML = `
-		<div id="info_detail_title" class="detail-title"></div>
-		<div id="info_detail_etc" class="detail-etc"></div>
-		<div id="info_detail_image" class="detail_info-img"></div>
-		<h4>개요</h4>
-		<div id="info_detail_descript" class="detail-descript"></div>
-		<h4>시설정보</h4>
-		<div id="info_detail_intro" class="detail-intro"></div>
-		<div class="localfood_guide_04">
-			<img src="./img/btn_ytb.png" alt="유튜브에서 더보기" onclick="sendText('유튜브에서 더보기')">
-			<img src="./img/btn_insta.png" alt="인스타그램에서 더보기" onclick="sendText('인스타그램에서 더보기')">
-		</div>
-	`;
-
-	document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_chara.png");
-
-	const number = data.info_number;
-	const type = resultidinfo[number - 1].contenttypeid;
-	console.log("입력된 번호 : " + number + " 찾는 번호 : " + JSON.stringify(resultidinfo[number - 1]));
-	resultidinfo[number - 1].selected = true;
-
-	const xmladdr = `https://api.visitkorea.or.kr/openapi/service/rest/KorService/detailCommon?ServiceKey=${servicekey}&contentId=${resultidinfo[number - 1].contentid}&MobileOS=ETC&MobileApp=TourAPI3.0_Guide&defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&transGuideYN=Y&_type=json`;
-	const xmladdr2 = `https://api.visitkorea.or.kr/openapi/service/rest/KorService/detailIntro?ServiceKey=${servicekey}&contentTypeId=${type}&contentId=${resultidinfo[number - 1].contentid}&MobileOS=ETC&MobileApp=TourAPI3.0_Guide&introYN=Y&_type=json&numOfRows=10000`;
-	const xmladdr3 = `https://api.visitkorea.or.kr/openapi/service/rest/KorService/detailImage?ServiceKey=${servicekey}&contentTypeId=${type}&contentId=${resultidinfo[number - 1].contentid}&MobileOS=ETC&MobileApp=TourAPI3.0_Guide&imageYN=Y&_type=json&numOfRows=10000`;
-
-	fetch(xmladdr)
-		.then( res => res.json() )
-		.then( myObj => {
-			console.log("1: json 응답 갯수 : " + myObj.response.body.totalCount + "개");
-			const ITEM = myObj.response.body.items.item;
-
-			const website = ITEM.homepage ?
-				ITEM.homepage.substring( ITEM.homepage.indexOf(">")+1, ITEM.homepage.lastIndexOf("<") )
-				: '';
-
-			const pdata = { //tmap data
-				Name: ITEM.title,
-				Level: ITEM.mlevel,
-				Lng: ITEM.mapx,
-				Lat: ITEM.mapy
-			};
-
-			document.querySelector("#info_detail_title").innerHTML = `
-<!--				<img src="./img/local_food_02.png" class="go_prev" onclick="sendText('이전으로')" >-->
-				<div class="detail_title_text">${ITEM.title}</div>
-				<img src="./img/info_detail_01.png" class="find_route" onclick="sendText('가는길알려줘')">`;
-			//주소/홈페이지/전화번호
-			document.querySelector("#info_detail_etc").innerHTML = `
-				<i class='fas fa-map-marker-alt'></i> ${ITEM.addr1 ? ITEM.addr1 : "주소정보 없음"}<br>`;
-
-			if(website) {
-				document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
-			}
-			if(ITEM.tel) {
-				document.querySelector("#info_detail_etc").innerHTML += `${ITEM.tel}`;
-			}
-
-			//선택한 항목으로 지도 중심 옮기기 / 지도 핀 옮기기
-			document.getElementById("info_result_tmapview").innerHTML = "";
-			info_map(pdata, "info_result_tmapview");
-			//Tmap 링크 생성
-			tmaplink = `https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxef0befba10d74637b27b8d7a8acdd7aa&name=${pdata.Name}&lon=${pdata.Lng}&lat=${pdata.Lat}`;
-
-			const imgURL = ITEM.firstimage ? replaceimage(ITEM.firstimage) : "./img/icon/noimage.png";
-			document.querySelector("#info_detail_image").innerHTML = `<img src="${imgURL}">`;
-			document.querySelector("#info_detail_descript").innerHTML = `${ITEM.overview}`;
-
-			linkKeyword = ITEM.title; //sns에서 더보기
-
-			//타이틀이 길 경우
-			const marqueeTxt = document.querySelector(".detail_title_text");
-
-			if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth) {
-				marqueeTxt.classList.add("marquee");
-			}
-		});
-
-	fetch(xmladdr2)
-		.then( res => res.json() )
-		.then( myObj => {
-			console.log(`2: json 응답 갯수 : ${myObj.response.body.totalCount} 개`);
-			const etcitem = myObj.response.body.items.item;
-			const facilities = document.getElementById("info_detail_intro");
-
-			if (type == 39) { //음식점
-				//할인정보 대표메뉴 문의및안내 영업시간 포장가능 주차시설 예약안내 쉬는날
-				if (etcitem.discountinfofood) facilities.innerHTML += `- 할인정보 : ${etcitem.discountinfofood}<br>`;
-				if (etcitem.firstmenu) facilities.innerHTML += `- 대표메뉴 : ${etcitem.firstmenu}<br>`;
-				if (etcitem.infocenterfood) facilities.innerHTML += `- 문의 및 안내 : ${etcitem.infocenterfood}<br>`;
-				if (etcitem.opentimefood) facilities.innerHTML += `- 영업시간 : ${etcitem.opentimefood}<br>`;
-				if (etcitem.packing) facilities.innerHTML += `- 포장가능 : ${etcitem.packing}<br>`;
-				if (etcitem.parkingfood) facilities.innerHTML += `- 주차시설 : ${etcitem.parkingfood}<br>`;
-				if (etcitem.reservationfood) facilities.innerHTML += `- 예약안내 : ${etcitem.reservationfood}<br>`;
-				if (etcitem.restdatefood) facilities.innerHTML += `- 쉬는날 : ${etcitem.restdatefood}<br>`;
-
-			} else if (type == 32) { //숙박시설
-				//수용가능인원 입실시간 퇴실시간 객실내취사 문의및안내 주차시설 예약안내
-				if (etcitem.accomcountlodging) facilities.innerHTML += `- 수용가능인원 : ${etcitem.accomcountlodging}<br>`;
-				if (etcitem.checkintime) facilities.innerHTML += `- 입실시간 : ${etcitem.checkintime}<br>`;
-				if (etcitem.checkouttime) facilities.innerHTML += `- 퇴실시간 : ${etcitem.checkouttime}<br>`;
-				if (etcitem.chkcooking) facilities.innerHTML += `- 객실내 취사 여부 : ${etcitem.chkcooking}<br>`;
-				if (etcitem.infocenterlodging) facilities.innerHTML += `- 문의 및 안내 : ${etcitem.infocenterlodging}<br>`;
-				if (etcitem.parkinglodging) facilities.innerHTML += `- 주차시설 : ${etcitem.parkinglodging}<br>`;
-				if (etcitem.reservationlodging) facilities.innerHTML += `- 예약안내 : ${etcitem.reservationlodging}<br>`;
-
-			} else if (type == 12) { //관광지
-				//수용인원 유모차대여 문의및안내 주차시설 쉬는날 이용시기 이용시간
-				if (etcitem.accomcount) facilities.innerHTML += `- 수용인원 : ${etcitem.accomcount}<br>`;
-				if (etcitem.chkbabycarriage) facilities.innerHTML += `- 유모차대여 정보 : ${etcitem.chkbabycarriage}<br>`;
-				if (etcitem.infocenter) facilities.innerHTML += `- 문의 및 안내 : ${etcitem.infocenter}<br>`;
-				if (etcitem.parking) facilities.innerHTML += `- 주차시설 : ${etcitem.parking}<br>`;
-				if (etcitem.restdate) facilities.innerHTML += `- 쉬는날 : ${etcitem.restdate}<br>`;
-				if (etcitem.useseason) facilities.innerHTML += `- 이용시기 : ${etcitem.useseason}<br>`;
-				if (etcitem.usetime) facilities.innerHTML += `- 이용시간 : ${etcitem.usetime}<br>`;
-
-			} else if (type == 14) { //문화시설
-				//수용인원 유모차대여 문의및안내 주차시설 주차요금 쉬는날 이용요금 이용시간
-				if (etcitem.accomcountculture) facilities.innerHTML += `- 수용인원 : ${etcitem.accomcountculture}<br>`;
-				if (etcitem.chkbabycarriageculture) facilities.innerHTML += `- 유모차대여 정보 : ${etcitem.chkbabycarriageculture}<br>`;
-				if (etcitem.Infocenterculture) facilities.innerHTML += `- 문의 및 안내 : ${etcitem.Infocenterculture}<br>`;
-				if (etcitem.parkingculture) facilities.innerHTML += `- 주차시설 : ${etcitem.parkingculture}<br>`;
-				if (etcitem.parkingfee) facilities.innerHTML += `- 주차요금 : ${etcitem.parkingfee}<br>`;
-				if (etcitem.restdateculture) facilities.innerHTML += `- 쉬는날 : ${etcitem.restdateculture}<br>`;
-				if (etcitem.usefee) facilities.innerHTML += `- 이용요금 : ${etcitem.usefee}<br>`;
-				if (etcitem.usetimeculture) facilities.innerHTML += `- 이용시간 : ${etcitem.usetimeculture}<br>`;
-
-			} else if (type == 38) { //쇼핑
-				//유모차대여 장서는날 문의및안내 개장일 영업시간 주차시설 쉬는날 매장안내
-				if (etcitem.chkbabycarriageshopping) facilities.innerHTML += `- 유모차대여 정보 : ${etcitem.chkbabycarriageshopping}<br>`;
-				if (etcitem.fairday) facilities.innerHTML += `- 장서는 날 : ${etcitem.fairday}<br>`;
-				if (etcitem.infocentershopping) facilities.innerHTML += `- 문의 및 안내 : ${etcitem.infocentershopping}<br>`;
-				if (etcitem.opendateshopping) facilities.innerHTML += `- 개장일 : ${etcitem.opendateshopping}<br>`;
-				if (etcitem.opentime) facilities.innerHTML += `- 영업시간 : ${etcitem.opentime}<br>`;
-				if (etcitem.parkingshopping) facilities.innerHTML += `- 주차시설 : ${etcitem.parkingshopping}<br>`;
-				if (etcitem.restdateshopping) facilities.innerHTML += `- 쉬는날 : ${etcitem.restdateshopping}<br>`;
-				if (etcitem.shopguide) facilities.innerHTML += `- 매장안내 : ${etcitem.shopguide}<br>`;
-
-			} else if (type == 28) { //레포츠
-				//수용인원 유모차대여 애완동물동반 체험가능연령 문의및안내 개장기간 주차요금 주차시설 예약안내 쉬는날 입장료 이용시간
-				if (etcitem.accomcountleports) facilities.innerHTML += `- 수용인원 : ${etcitem.accomcountleports}<br>`;
-				if (etcitem.chkbabycarriageleports) facilities.innerHTML += `- 유모차대여 정보 : ${etcitem.chkbabycarriageleports}<br>`;
-				if (etcitem.chkpetleports) facilities.innerHTML += `- 애완동물동반가능정보 : ${etcitem.chkpetleports}<br>`;
-				if (etcitem.expagerangeleports) facilities.innerHTML += `- 체험 가능연령 : ${etcitem.expagerangeleports}<br>`;
-				if (etcitem.infocenterleports) facilities.innerHTML += `- 문의 및 안내 : ${etcitem.infocenterleports}<br>`;
-				if (etcitem.openperiod) facilities.innerHTML += `- 개장기간 : ${etcitem.openperiod}<br>`;
-				if (etcitem.parkingfeeleports) facilities.innerHTML += `- 주자요금 : ${etcitem.parkingfeeleports}<br>`;
-				if (etcitem.parkingleports) facilities.innerHTML += `- 주차시설 : ${etcitem.parkingleports}<br>`;
-				if (etcitem.reservation) facilities.innerHTML += `- 예약안내 : ${etcitem.reservation}<br>`;
-				if (etcitem.restdateleports) facilities.innerHTML += `- 쉬는날 : ${etcitem.restdateleports}<br>`;
-				if (etcitem.usefeeleports) facilities.innerHTML += `- 입장료 : ${etcitem.usefeeleports}<br>`;
-				if (etcitem.usetimeleports) facilities.innerHTML += `- 이용시간 : ${etcitem.usetimeleports}<br>`;
-			}
-		});
-
-	fetch(xmladdr3).then( res => {
-		res.json().then( myObj => {
-			const count = myObj.response.body.totalCount;
-			console.log(`3: json 응답 갯수 : ${count} 개`);
-			var imageitem = myObj.response.body.items.item;
-			console.log(imageitem);
-			var moreimgs = document.getElementById("info_detail_image");
-
-			if (count == 1) {
-				moreimgs.innerHTML += `<img src="${replaceimage(imageitem.smallimageurl)}">`;
-			} else if (count > 1) {
-				for (var i = 0; i < count; i++) {
-					moreimgs.innerHTML += `<img src="${replaceimage(imageitem[i].smallimageurl)}">`; //originimgurl
-				}
-			}
-		})
-	})
-}
-
 async function drawDetail(data) {
-	console.log(`실행 : drawDetail`);
+	console.log(`실행 : drawDetail\ndata >> ${JSON.stringify(data)}`);
 	if(data.reco_detail) {
 		document.getElementById("info").style.display = 'block';
 		document.getElementById("info_result").style.display = "block";
@@ -721,15 +443,13 @@ async function drawDetail(data) {
 	`;
 
 	document.getElementById("info_result_chara_image").setAttribute("src", "./img/p6-4_chara.png");
-
-
-	let number;
+	let number=0;
 	if (data.info_number) {
 		number = data.info_number - 1
 		resultidinfo[number].selected = true;
 	}
 
-	const jsonData = await tourAPI("상세정보", data, resultidinfo[number])
+	const jsonData = await tourAPI("상세정보", data, resultidinfo[number]); //TODO
 	jsonData.map( myObj => {
 
 		const website = myObj.homepage ?
@@ -751,12 +471,8 @@ async function drawDetail(data) {
 		document.querySelector("#info_detail_etc").innerHTML = `
 			<i class='fas fa-map-marker-alt'></i> ${myObj.addr1 ? myObj.addr1 : "주소정보 없음"}<br>`;
 
-		if(website) {
-			document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
-		}
-		if(myObj.tel) {
-			document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
-		}
+		if(website) document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
+		if(myObj.tel) document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
 
 		//선택한 항목으로 지도 중심 옮기기 / 지도 핀 옮기기
 		document.getElementById("info_result_tmapview").innerHTML = "";
@@ -774,9 +490,8 @@ async function drawDetail(data) {
 		//타이틀이 길 경우
 		const marqueeTxt = document.querySelector(".detail_title_text");
 
-		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth) {
+		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth)
 			marqueeTxt.classList.add("marquee");
-		}
 
 		const facilities = document.getElementById("info_detail_intro");
 
@@ -809,20 +524,17 @@ async function drawDetail(data) {
 		if (myObj.fairday) facilities.innerHTML += `- 장서는날 : ${myObj.fairday}<br>`;
 		if (myObj.saleitem) facilities.innerHTML += `- 판매 품목 : ${myObj.saleitem}<br>`;
 	});
-	// });
 
-	fetch(`https://actions.o2o.kr/devsvr10/finddetailimg?contentid=${resultidinfo[number].contentid}`)
+	fetch(`${dblink}finddetailimg?contentid=${resultidinfo[number].contentid}`)
 		.then( res => res.json() )
 		.then( jsonData => {
 		console.log(`3: json 응답 갯수 : ${jsonData.length} 개 \n data >>> ${JSON.stringify(jsonData)}`);
 		
 		jsonData.map( obj => {
 			document.getElementById("info_detail_image").innerHTML += `
-				<img src="${replaceimage(obj.smallimageurl)}">
-			`; //originimgurl
+				<img src="${replaceimage(obj.smallimageurl)}">`; //originimgurl
 		})
 	});
-
 }
 
 async function drawFilmDetail(data) {
@@ -872,12 +584,8 @@ async function drawFilmDetail(data) {
 		document.querySelector("#info_detail_etc").innerHTML = `
 			<i class='fas fa-map-marker-alt'></i> ${myObj.addr1 ? myObj.addr1 : "주소정보 없음"}<br>`;
 
-		if(website) {
-			document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
-		}
-		if(myObj.tel) {
-			document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
-		}
+		if(website) document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
+		if(myObj.tel) document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
 
 		//선택한 항목으로 지도 중심 옮기기 / 지도 핀 옮기기
 		document.getElementById("info_result_tmapview").innerHTML = "";
@@ -895,9 +603,8 @@ async function drawFilmDetail(data) {
 		//타이틀이 길 경우
 		const marqueeTxt = document.querySelector(".detail_title_text");
 
-		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth) {
+		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth)
 			marqueeTxt.classList.add("marquee");
-		}
 
 		const facilities = document.getElementById("info_detail_intro");
 
@@ -930,20 +637,17 @@ async function drawFilmDetail(data) {
 		if (myObj.fairday) facilities.innerHTML += `- 장서는날 : ${myObj.fairday}<br>`;
 		if (myObj.saleitem) facilities.innerHTML += `- 판매 품목 : ${myObj.saleitem}<br>`;
 	});
-	// });
 
-	fetch(`https://actions.o2o.kr/devsvr10/finddetailimg?contentid=${data.info.contentid}`)
+	fetch(`${dblink}finddetailimg?contentid=${data.info.contentid}`)
 		.then( res => res.json() )
 		.then( jsonData => {
 			console.log(`3: json 응답 갯수 : ${jsonData.length} 개 \n data >>> ${JSON.stringify(jsonData)}`);
 
 			jsonData.map( obj => {
 				document.getElementById("info_detail_image").innerHTML += `
-				<img src="${replaceimage(obj.smallimageurl)}">
-			`; //originimgurl
+					<img src="${replaceimage(obj.smallimageurl)}">`; //originimgurl
 			})
 		});
-
 }
 
 async function drawFilmResultDetail(data) {
@@ -993,12 +697,9 @@ async function drawFilmResultDetail(data) {
 		document.querySelector("#info_detail_etc").innerHTML = `
 			<i class='fas fa-map-marker-alt'></i> ${myObj.addr1 ? myObj.addr1 : "주소정보 없음"}<br>`;
 
-		if(website) {
-			document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
-		}
-		if(myObj.tel) {
-			document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
-		}
+		if(website) document.querySelector("#info_detail_etc").innerHTML += `${website}<br>`;
+		if(myObj.tel) document.querySelector("#info_detail_etc").innerHTML += `${myObj.tel}`;
+
 
 		//선택한 항목으로 지도 중심 옮기기 / 지도 핀 옮기기
 		document.getElementById("info_result_tmapview").innerHTML = "";
@@ -1008,7 +709,6 @@ async function drawFilmResultDetail(data) {
 
 		// const imgURL = myObj.firstimage ? replaceimage(myObj.firstimage) : "./img/icon/noimage.png";
 		if(myObj.firstimage) document.querySelector("#info_detail_image").innerHTML = `<img src="${myObj.firstimage}">`;
-		// document.querySelector("#info_detail_image").innerHTML = `<img src="${imgURL}">`;
 		document.querySelector("#info_detail_descript").innerHTML = `${myObj.overview}`;
 
 		linkKeyword = myObj.title; //sns에서 더보기
@@ -1016,9 +716,8 @@ async function drawFilmResultDetail(data) {
 		//타이틀이 길 경우
 		const marqueeTxt = document.querySelector(".detail_title_text");
 
-		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth) {
+		if (marqueeTxt.scrollWidth > marqueeTxt.offsetWidth)
 			marqueeTxt.classList.add("marquee");
-		}
 
 		const facilities = document.getElementById("info_detail_intro");
 
@@ -1053,15 +752,14 @@ async function drawFilmResultDetail(data) {
 	});
 	// });
 
-	fetch(`https://actions.o2o.kr/devsvr10/finddetailimg?contentid=${data.contentid}`)
+	fetch(`${dblink}finddetailimg?contentid=${data.contentid}`)
 		.then( res => res.json() )
 		.then( jsonData => {
 			console.log(`3: json 응답 갯수 : ${jsonData.length} 개 \n data >>> ${JSON.stringify(jsonData)}`);
 
 			jsonData.map( obj => {
 				document.getElementById("info_detail_image").innerHTML += `
-				<img src="${replaceimage(obj.smallimageurl)}">
-			`; //originimgurl
+					<img src="${replaceimage(obj.smallimageurl)}">`; //originimgurl
 			})
 		});
 
@@ -1070,15 +768,12 @@ async function drawFilmResultDetail(data) {
 function findLocalFoodStores(data) {
 	console.log("실행 : findLocalFoodStores() , data.food >> "+data.food);
 
-	if (data.fallback) {
-		// 3번 전까지 호랑이 땀흘리는 사진 넣기
+	if (data.fallback) // 3번 전까지 호랑이 땀흘리는 사진 넣기
 		document.getElementById("info_result_chara_image").setAttribute("src", `./img/p17.png`);
-	} else {
+	else
 		document.getElementById("info_result_chara_image").setAttribute("src", `./img/p6-2_chara.png`);
-	}
 
-	fetch(`https://actions.o2o.kr/devsvr10/findfoodplace?localfood=${data.food}`)
-	// fetch(`${dblink}findfoodplace?localfood=${data.food}`)
+	fetch(`${dblink}findfoodplace?localfood=${data.food}`)
 	.then( res => res.json())
 	.then( data => {
 
@@ -1165,7 +860,6 @@ function localFood(data) {
 	hideall();
 	document.getElementById("region").style.display = "block";
 
-	// const url = `https://actions.o2o.kr/devsvr10/findlocalfood?locationname=${data.region}`
 	const url = `${dblink}findlocalfood?locationname=${data.region}`
 	fetch(url)
 		.then( res => res.json() )
@@ -1240,29 +934,8 @@ function info_detail_link_view(data) {
 	}
 }
 
-function info_result_option_eat_view_legacy(data) {
-	console.log("실행 : info_result_option_eat_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
-
-	if(fallback){
-		document.getElementById("eatimage").setAttribute("src", "./img/p12-1fallback.png");
-	} else {
-		document.getElementById("eatimage").setAttribute("src", "./img/p12-1.png");
-	}
-
-	hideall();
-	document.getElementById("welcome").style.display = "block";
-	document.querySelector("#welcome").style.marginTop = `${barHeight.toString()}px`;
-	document.getElementById("welcome").style.backgroundImage = `url("./img/background.png")`;
-	document.getElementById("eat").style.display = "block";
-	$('img[usemap]').trigger("click");
-}
-
 function info_result_option_eat_view(data) {
 	console.log("실행 : info_result_option_eat_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
 
 	hideall();
 	document.querySelector("#welcome").style.display = "block";
@@ -1310,34 +983,13 @@ function info_result_option_eat_view(data) {
 
 	const charaImage = document.createElement("img");
 	charaImage.setAttribute("src", "./img/icon/ani_4.png");
-	if(fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
+	if(data.fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
 	charaImage.setAttribute("class", "charaImage");
 	charaDiv.appendChild(charaImage);
 }
 
-function info_result_option_sleep_view_legacy(data) {
-	console.log("실행 : info_result_option_sleep_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
-
-	if(fallback){
-		document.getElementById("sleepimage").setAttribute("src", "./img/p6-1fallback.png");
-	} else {
-		document.getElementById("sleepimage").setAttribute("src", "./img/p6-1.png");
-	}
-
-
-	hideall();
-	document.getElementById("welcome").style.display = "block";
-	document.querySelector("#welcome").style.marginTop = `${barHeight.toString()}px`;
-	document.getElementById("welcome").style.backgroundImage = `url("./img/background.png")`;
-	document.getElementById("sleep").style.display = "block";
-}
-
 function info_result_option_sleep_view(data) {
 	console.log("실행 : info_result_option_sleep_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
 
 	hideall();
 	document.querySelector("#welcome").style.display = "block";
@@ -1385,34 +1037,13 @@ function info_result_option_sleep_view(data) {
 
 	const charaImage = document.createElement("img");
 	charaImage.setAttribute("src", "./img/icon/ani_4.png");
-	if(fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
+	if(data.fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
 	charaImage.setAttribute("class", "charaImage");
 	charaDiv.appendChild(charaImage);
 }
 
-const info_result_option_tour_view_legacy = (data) => {
-	console.log("실행 : info_result_option_tour_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
-
-	if(fallback){
-		document.getElementById("tourimage").setAttribute("src", "./img/p17-2fallback.png");
-	} else {
-		document.getElementById("tourimage").setAttribute("src", "./img/p17-2.png");
-	}
-
-	hideall();
-	document.getElementById("welcome").style.display = "block";
-	document.querySelector("#welcome").style.marginTop = `${barHeight.toString()}px`;
-	document.getElementById("welcome").style.backgroundImage = `url("./img/background.png")`;
-	document.getElementById("tour").style.display = "block";
-	$('img[usemap]').trigger("click");
-}
-
 function info_result_option_tour_view(data) {
 	console.log("실행 : info_result_option_tour_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
 
 	hideall();
 	document.querySelector("#welcome").style.display = "block";
@@ -1460,34 +1091,13 @@ function info_result_option_tour_view(data) {
 
 	const charaImage = document.createElement("img");
 	charaImage.setAttribute("src", "./img/icon/ani_4.png");
-	if(fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
+	if(data.fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
 	charaImage.setAttribute("class", "charaImage");
 	charaDiv.appendChild(charaImage);
 }
 
-const info_result_option_heal_view_legacy = (data) => {
-	console.log("실행 : info_result_option_heal_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
-
-	if(fallback){
-		document.getElementById("healimage").setAttribute("src", "./img/p17-3fallback.png");
-	} else {
-		document.getElementById("healimage").setAttribute("src", "./img/p17-3.png");
-	}
-
-	hideall();
-	document.getElementById("welcome").style.display = "block";
-	document.querySelector("#welcome").style.marginTop = `${barHeight.toString()}px`;
-	document.getElementById("welcome").style.backgroundImage = `url("./img/background.png")`;
-	document.getElementById("heal").style.display = "block";
-	$('img[usemap]').trigger("click");
-}
-
 function info_result_option_heal_view(data) {
 	console.log("실행 : info_result_option_heal_view(), data >>> "+ JSON.stringify(data));
-	let fallback;
-	if(data.fallback) fallback = data.fallback;
 
 	hideall();
 	document.querySelector("#welcome").style.display = "block";
@@ -1500,7 +1110,6 @@ function info_result_option_heal_view(data) {
 
 	const healWindow = document.createElement("div");
 	document.querySelector("#welcome").appendChild(healWindow);
-
 	healWindow.setAttribute("id", "healWindow");
 	healWindow.setAttribute("class", "option");
 	healWindow.style.backgroundImage = `url("./img/bg.png")`
@@ -1535,7 +1144,7 @@ function info_result_option_heal_view(data) {
 
 	const charaImage = document.createElement("img");
 	charaImage.setAttribute("src", "./img/icon/ani_4.png");
-	if(fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
+	if(data.fallback) charaImage.setAttribute("src", "./img/icon/ani_3.png");
 	charaImage.setAttribute("class", "charaImage");
 	charaDiv.appendChild(charaImage);
 }
