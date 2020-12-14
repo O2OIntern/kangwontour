@@ -642,25 +642,45 @@ const reco_step_result_view = async (data) => {
 
 	let distribution = []; //도시당 1개의 관광지 추출
 
-	let attr; // 추천 관광지 수
-	if (data.question_three === "당일치기") attr = 3;
-	else if (data.question_three === "1박2일") attr = 6;
-	else if (data.question_three === "2박3일") attr = 9;
+	let attr, restCnt; // 추천 관광지 수
+	if (data.question_three === "당일치기") {
+		attr = 3;
+		restCnt = 0;
+	} else if (data.question_three === "1박2일") {
+		attr = 6;
+		restCnt = 1;
+	} else if (data.question_three === "2박3일") {
+		attr = 9;
+		restCnt = 1 //숙소는 하나만 추천
+	}
+
 
 	//TODO 지역별 추천코스 ...
-	const URL = "https://actions.o2o.kr/devsvr9/sigungu/count?theme=" + data.course_type;
-	let result = await fetch(URL).then(response => response.json());//.then(data => result = data);
+	// const URL = "https://actions.o2o.kr/devsvr9/sigungu/count?theme=" + data.course_type;
+	const URL = "https://actions.o2o.kr/devsvr9/stayAndFoodCnt?theme=" + data.course_type;
+	let result = await fetch(URL).then(response => response.json());
 	console.log("지역별 추천코스 >>> " + JSON.stringify(result) );
 
 	let chips = ``;
-	for(let sigungucode in result) {
-		if (result[sigungucode] > attr) { //필요한 추천개수보다 많으면 파란색 ..
-			chips += `<div onclick="sendText('${places[sigungucode - 1]}')" id="chip${sigungucode}" class="reco_button exists">${places[sigungucode - 1]}</div>`;
-			existing_course.push(`${places[sigungucode - 1]}`); //코스 존재 배열에 지역이름 넣어두기
+	for(let i=0; i<result.length; i++) {
+	// for(let attrsAndRests in result) {
+		let attrsAndRests = result[i];
+		if (attrsAndRests[1] > attr && attrsAndRests[2]>=restCnt) { //필요한 추천개수보다 많으면 파란색 ..
+			chips += `<div onclick="sendText('${places[i]}')" id="chip${attrsAndRests[0]}" class="reco_button exists">${places[i]}</div>`;
+			existing_course.push(`${places[i]}`); //코스 존재 배열에 지역이름 넣어두기
 		} else {
-			chips += `<div id="chip${sigungucode}" class=" reco_button">${places[sigungucode - 1]}</div>`;
+			chips += `<div id="chip${attrsAndRests[0]}" class=" reco_button">${places[i]}</div>`;
 		}
 	}
+
+	// for(let sigungucode in result) {
+	// 	if (result[sigungucode] > attr) { //필요한 추천개수보다 많으면 파란색 ..
+	// 		chips += `<div onclick="sendText('${places[sigungucode - 1]}')" id="chip${sigungucode}" class="reco_button exists">${places[sigungucode - 1]}</div>`;
+	// 		existing_course.push(`${places[sigungucode - 1]}`); //코스 존재 배열에 지역이름 넣어두기
+	// 	} else {
+	// 		chips += `<div id="chip${sigungucode}" class=" reco_button">${places[sigungucode - 1]}</div>`;
+	// 	}
+	// }
 
 	//TODO 주석 처리 해야함(736~744)
 	// let chips = ``;
@@ -707,9 +727,6 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	let title = `${quote.question_two} 떠나는 ${quote.question_one} 코스!`;
 	let hashtag = `#${quote.question_one}코스  #${quote.tag}  #${quote.question_three}  #${quote.place}`;
 
-	document.getElementById("reco_step_locale_acco_subject").innerHTML = `${quote.acco} 좋은 숙소로 추천해요!`;
-	document.getElementById("reco_step_locale_course_subject").innerHTML = `${quote.tour} 여행을 떠나 볼까요?`;
-
 	document.getElementById("reco_step_locale_title").innerHTML = title;
 	document.getElementById("reco_step_locale_hashtag").innerHTML = hashtag;
 	const sigungu = parseInt(placesSi.indexOf(data.place))+ 1;
@@ -723,9 +740,13 @@ const reco_step_locale_view = async (data, rerun = false) => {
 
 	let accomContents = "";
 	if(data.accomData) {
+		document.getElementById("reco_step_locale_acco_subject").innerHTML = `${quote.acco} 좋은 숙소로 추천해요!`;
+
 		const accoObj = data.accomData; console.log("accoObj >> "+ JSON.stringify(accoObj));
+		resultidinfo = [accoObj];
+		resultidinfo[0].selected = true;
 		let imgURL = accoObj.firstimage ? replaceimage(accoObj.firstimage) : "./img/icon/noimage.png";
-		accomContents = `<div class="localeAcco" onclick=""> 
+		accomContents = `<div class="localeAcco" onclick="sendText('숙소보여줘')"> 
 						<!-- <div class="localeAcco-img"></div>-->
 							<img src="${imgURL}">
 						<div class="localeAcco-disc">
@@ -806,14 +827,10 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	const body ={
 		"gender":"0", "age":"0", "budget":"99999999", //선택하지 않는 옵션 ..
 		"transportType":"1", //자동차 fixed
-		"startTime": startDate+ " 09:00", //시간은 다시 확인
-		"endTime": endDate + " 18:00",
-		"destination": sigungu,
-		"days": quote.days, //TODO 1인경우 확인 要
-		"theme": theme,
-		"partner": data.companion,
-		"stay": stayOption,//fixedActivity를 음식점으로 수정
-		"count": "1",
+		"startTime": startDate+ " 09:00", "endTime": endDate + " 18:00",
+		"destination": sigungu, "days": quote.days, //TODO 1인경우 확인 要
+		"theme": theme, "partner": data.companion,
+		"stay": stayOption, "count": "1",
 	}
 	let options = {
 		method: 'POST',
@@ -831,171 +848,227 @@ const reco_step_locale_view = async (data, rerun = false) => {
 	//let course = await makeCourse(data, rerun); //TODO 주석 처리 해야함 (기존 추천 코스)
 	//resultidreco_info = course; //reco_tmaplink = course.tmaplink; //티맵 링크
 
-
 	//array.key()는 배열의 각 인덱스를 키값으로 가지는 새로운 array iterator 반환
 	//array.map()은 주어진 함수를 호출한 결과를 모아 새로운 array 반환
-	//왜 Array(9) ????????????? => [1, 2, 3, ... , 9]
-	// let days = [...Array(9).keys()].map(word => word + 1);
-	let pdata = [];
+
+	// let days = [...Array(9).keys()].map(word => word + 1); //왜 Array(9) ????????????? => [1, 2, 3, ... , 9]
+
 	// T맵실행
 	//document.getElementById("getNavigation").setAttribute("onclick", `goToPage('${course.tmaplink}')`);
-
-	const attrs = JSON.parse(data.scheduledData).course[0].locations;
-	console.log("리졀트2 >>>> " + JSON.stringify(attrs));
+	const jsonData = JSON.parse(data.scheduledData);
+	let attrs = jsonData.course[0].locations;
+	console.log("리졀트1 >>>> " + JSON.stringify(attrs));
 	console.log("attrs.length >> "+ attrs.length);
-	resultidreco_info = attrs; //상세페이지 표시를 위한 전역변수
-	let results = "";
-	for(let i = 0; i < quote.days; i++){ //여행 기간 / 2박 3일 = 3, 1박 2일 = 2, 당일치기 = 1
-		if(i === 0) {//수직 방향 회색 라인
-			results += `<div id="reco_step_locale_course_day1" class="locale_day day1">
-							<div class="verticalLine"></div>`;
-		} else if (i === 1) { //중간에 둘째날 출력
-			results += `	<div id="locale_day2" class="day_divider day1" onclick="openDay(2)">
-								<div class="horizontalLine left"></div>둘째날 <span><i class="fas fa-angle-double-down"></i></span>
-								<div class="horizontalLine right"></div>
-							</div><div id="reco_step_locale_course_day2" class="locale_day day2">
-							<div class="verticalLine"></div>`;
-		} else { //셋째날 출력
-			results += `	<div id="locale_day3" class="day_divider day2" onclick="openDay(3)">
-							<div class="horizontalLine left"></div>셋째날 <span><i class="fas fa-angle-double-down"></i></span>
-								<div class="horizontalLine right"></div>
-							</div>
-							<div id="reco_step_locale_course_day3" class="locale_day day3"><div class="verticalLine">
-						</div>`;
+
+	if(attrs.length>3) {
+		document.querySelector("#reco_step_locale_body").innerHTML
+		+= `<div id="reco_step_locale_buttons">
+				<span id="getNavigation" class="localeButtons"><i class="fas fa-map-marked-alt"></i> 길찾기 실행</span>
+				<span id="getOtherCourse" class="localeButtons" onclick="sendText('다른 코스로 추천해줘')"><i class="fas fa-sync"></i> 다른 코스 보기</span>
+			</div>
+			<div id="reco_step_locale_tmapview"></div>
+			<div id="reco_step_locale_course"></div>`;
+
+		document.querySelector("#reco_step_locale_course_subject").innerHTML = `${quote.tour} 여행을 떠나 볼까요?`;
+
+		if(jsonData.course.length > 1){
+			for(let i=1; i<jsonData.course.length; i++){
+				attrs = attrs.concat(jsonData.course[i].locations);
+			}
+			console.log("리졀트2 >>>> " + JSON.stringify(attrs));
+			console.log("attrs.length >> "+ attrs.length);
 		}
 
-		// attrs.forEach( (attr, i) => {
-		for(let j=1; j<6; j++) {  //하루 다섯개 추천 ...식사 포함 //attrs.length-1
-			let number = j + i*5;
-			const obj = attrs[j];
-			const imgURL = obj.placeImageUrl || obj.placeImageUrl != "null" ? replaceimage(obj.placeImageUrl) : "./img/icon/noimage.png";
-			const typeClass = j==2 || j==5 ? "restaurant" : "";
-			console.log("course num >> "+ number+",, imgURL >> "+imgURL);
-			results += `<div id="courselist${number}" class="course-list" onclick="sendText('${number}번')">
-							<div id="locale_circle${number}" class="locale-circle ${typeClass}">
-								<div class="result-number"> ${number} </div>
-							</div>`; //class restaurant
-			// if(j == 2) {
-			// 	results += `<div class="course-name"> 점심코스 : <span>${obj.type ? obj.type : ""}</span></div>`; //word.type == 한식
-			// } else if (j == 5) {
-			// 	results += `<div class="course-name"> 저녁코스 : <span>${obj.type ? obj.type : ""}</span></div>`;
-			// } else {
-			//	results += `<div class="course-name"> 관광코스 ${days.shift()} : <span>${obj.type ? obj.type : ""}</span></div>`;
-			// }
-			// results += `	<div class="course-name"> 관광코스 ${number} : <span>${obj.type ? obj.type : ""}</span></div>
-			// 				<div class="locale-box">
-			// 					<div class="locale-box-img"><img src=${imgURL} ></div>
-			// 					<div class="locale-box-disc">
-			// 						<div class="locale-box-disc-title">${obj.title}</div>
-			// 						<div class="locale-box-disc-addr"><i class='fas fa-map-marker-alt'></i> ${obj.addr1}</div>
+		let results = "", pdata = [], num = 0;
+		for (let i=0; i < quote.days; i++) { //여행 기간> 2박3일=3, 1박2일=2, 당일치기=1
+			// if(i === 0) {//수직 방향 회색 라인
+			// 	results += `<div id="reco_step_locale_course_day1" class="locale_day day1">
+			// 					<div class="verticalLine"></div>`;
+			// } else if (i === 1) { //중간에 둘째날 출력
+			// 	results += `	<div id="locale_day2" class="day_divider day1" onclick="openDay(2)">
+			// 						<div class="horizontalLine left"></div>둘째날 <span><i class="fas fa-angle-double-down"></i></span>
+			// 						<div class="horizontalLine right"></div>
+			// 					</div><div id="reco_step_locale_course_day2" class="locale_day day2">
+			// 					<div class="verticalLine"></div>`;
+			// } else { //셋째날 출력
+			// 	results += `	<div id="locale_day3" class="day_divider day2" onclick="openDay(3)">
+			// 					<div class="horizontalLine left"></div>셋째날 <span><i class="fas fa-angle-double-down"></i></span>
+			// 						<div class="horizontalLine right"></div>
 			// 					</div>
-			// 				</div>
-			// 			</div>`; // ${JSON.stringify(attrs[number]) }
-			results += `	<div class="course-name"> 관광코스 ${number} : <span>${obj.type ? obj.type : ""}</span></div>
-							<div class="locale-box">
-								<img src=${imgURL} >
-								<div class="locale-box-disc">
-									<div class="locale-box-disc-title">${obj.title}</div>
+			// 					<div id="reco_step_locale_course_day3" class="locale_day day3"><div class="verticalLine">
+			// 				</div>`;
+			// }
+			if (i === 0) {//수직 방향 회색 라인
+				results += `<div id="reco_step_locale_course_day1" class="locale_day day1">`;
+			} else if (i === 1) { //중간에 둘째날 출력
+				results += `	<div id="locale_day2" class="day_divider day1" onclick="openDay(2)">
+									<div class="horizontalLine left"></div>둘째날 <span><i class="fas fa-angle-double-down"></i></span>
+									<div class="horizontalLine right"></div>
 								</div>
-							</div>
-						</div>`;
-			pdata.push({"lng" : obj.x, "lat" : obj.y, "parent" : "reco_locale"}); //pdata에 관광지(음식점) 정보 넣음
-		}
-		document.getElementById("reco_step_locale_course").innerHTML = results;
-		document.getElementById("reco_step_locale_course_day1").style.display = "block";
-		// for(let j = 0; j < 5; j++){
-		// 	let word = course.course[number - 1]; //관광지+음식점
-		// 	pdata.push({"lng" : word.mapx, "lat" : word.mapy, "parent" : "reco_locale"}); //pdata에 관광지(음식점) 정보 넣음
-		// 	results += `<div id="courselist${number}" class="course-list" onclick="sendText('${number}번')">`; //관광지(+음식점) 선택시
-		//
-		// 	if([1, 4].indexOf(j) > -1) { //j가 1 혹은 4 라면, number 가 2, 5번째 일 때(점심 저녁)
-		// 		results += `<div id="locale_circle${number}" class="locale-circle restaurant">
-		// 						<div class="result-number"> ${number} </div>
-		// 					</div>`;
-		// 		if(j === 1) {
-		// 		results += `<div class="course-name"> 점심코스 : <span>${word.type ? word.type : ""}</span></div>`; //word.type == 한식
-		// 		} else {
-		// 		results += `<div class="course-name"> 저녁코스 : <span>${word.type ? word.type : ""}</span></div>`;
-		// 		}
-		// 	} else { //그냥 관광지일 경우
-		// 		results += `<div id="locale_circle${number}" class="locale-circle">
-		// 						<div class="result-number"> ${number} </div>
-		// 					</div>
-		// 					<div class="course-name"> 관광코스 ${days.shift()} : <span>${word.type ? word.type : ""}</span></div>`;
-		// 	}
-		// 	let imgURL = word.firstimage ? replaceimage(word.firstimage) : "./img/icon/noimage.png";
-		// 		results += `<div class="locale-box">
-		// 						<div class="locale-box-img"><img src="${imgURL}"/></div>
-		// 						<div class="locale-box-disc">
-		// 							<div class="locale-box-disc-title">${word.title}</div>
-		// 							<div class="locale-box-disc-addr"><i class='fas fa-map-marker-alt'></i> ${word.addr1}</div>
-		// 						</div>
-		// 					</div>
-		// 				</div>`;
-		// }
-		// results += `</div>`;}
-	}
+								<div id="reco_step_locale_course_day2" class="locale_day day2">
+								`;
+			} else { //셋째날 출력
+				results += `	<div id="locale_day3" class="day_divider day2" onclick="openDay(3)">
+									<div class="horizontalLine left"></div>
+									셋째날 <span><i class="fas fa-angle-double-down"></i></span>
+									<div class="horizontalLine right"></div>
+								</div>
+								<div id="reco_step_locale_course_day3" class="locale_day day3">`;
+			}
 
-	document.querySelectorAll(`.day2`).forEach(word => word.style.display = "none");
-	console.log("day2 veiled");
-	document.querySelectorAll(`.day3`).forEach(word => word.style.display = "none");
-	console.log("day3 veiled");
-	console.log(`코스 일정 : ${quote.days}일`);
+			const maxCnt = quote.days*5 > jsonData.course[0].locations.length-3 ? 5 : jsonData.course[0].locations.length; //TODO 애매 ...
+			console.log("maxCnt >> " + maxCnt);
 
-	const count = 1;
-	let index = 0;
+			resultidreco_info = []; //attrs; //상세페이지 표시를 위한 전역변수
 
-	const infoResultList = document.getElementById("reco_step_locale_course");
+			for (let j=0; j<maxCnt; j++) {  //하루 다섯개 추천 ...식사 포함 //attrs.length-1
+				const obj = attrs[j]; console.log(j +" ::: "+ JSON.stringify(obj));
+				if (!obj.placeImageUrl || obj.placeImageUrl == "null") continue;
+				++num;
 
-	async function loadItems() { console.log("start with >>> " + index);
-		// 화면 표시 및 얼마나 표시되었는지 플래그 숫자 올리기
-		let temp = index+count > quote.days ? quote.days : index+count;
-		console.log(`몇번째 날 = ${temp}`);
+				resultidreco_info.push(obj); //상세페이지 표시를 위한 전역변수
 
-		document.querySelectorAll(`.day${temp}`).forEach(element => element.style.display = "block");
-		console.log(`day ${temp} unveiled`);
-
-		index += count;
-
-		const ioOptions = {
-			root: null, //document.querySelector('.container'), // .container class를 가진 엘리먼트를 root로 설정. null일 경우 브라우저 viewport
-			rootMargin: '20px', // rootMargin을 '10px 10px 10px 10px'로 설정
-			threshold: 0.5 // target이 root에 진입시 : 0, root에 target의 50%가 있을 때 : 0.5, root에 target의 100%가 있을 때 : 1.0
-		}
-		const io = new IntersectionObserver( (entries, observer) => {
-			entries.forEach( async (entry) => {
-				if (entry.isIntersecting) { //entry.intersectionRatio > 0
-					if(!infoResultList.querySelector(".loading-spinner")){
-						infoResultList.innerHTML += `<div class="loading-spinner"></div>`;
-						setTimeout( async  () => {
-							loadItems();
-							observer.unobserve(entry.target);
-							const spinner = infoResultList.querySelector(".loading-spinner");
-							spinner.parentNode.removeChild(spinner);
-							console.log("removed")
-						}, 260);
-					}
+				//let number = i*maxCnt + ();
+				const imgURL = obj.placeImageUrl || obj.placeImageUrl != "null" ? replaceimage(obj.placeImageUrl) : "./img/icon/noimage.png";
+				const typeClass = "";// j == 2 || j == 5 ? "restaurant" : "";
+				console.log("course num >> " + num + ",, imgURL >> " + imgURL);
+				results += `<div id="courselist${num}" class="course-list" onclick="sendText('${num}번')">`;
+				if (j < maxCnt-1) {
+					results += `<div class="verticalLine"></div>`;
 				}
-			});
-		}, ioOptions)
-
-		if (quote.days > temp) {
-			console.log(`현재 temp = ${temp}`);
-			const infoResultLastItem = document.querySelector(`#lazy_border`);
-			io.observe(infoResultLastItem);
+				results += `	<div id="locale_circle${num}" class="locale-circle ${typeClass}">
+									<div class="result-number"> ${num} </div>
+								</div>`; //class restaurant
+				// if(j == 2) {
+				// 	results += `<div class="course-name"> 점심코스 : <span>${obj.type ? obj.type : ""}</span></div>`; //word.type == 한식
+				// } else if (j == 5) {
+				// 	results += `<div class="course-name"> 저녁코스 : <span>${obj.type ? obj.type : ""}</span></div>`;
+				// } else {
+				//	results += `<div class="course-name"> 관광코스 ${days.shift()} : <span>${obj.type ? obj.type : ""}</span></div>`;
+				// }
+				// results += `	<div class="course-name"> 관광코스 ${number} : <span>${obj.type ? obj.type : ""}</span></div>
+				// 				<div class="locale-box">
+				// 					<div class="locale-box-img"><img src=${imgURL} ></div>
+				// 					<div class="locale-box-disc">
+				// 						<div class="locale-box-disc-title">${obj.title}</div>
+				// 						<div class="locale-box-disc-addr"><i class='fas fa-map-marker-alt'></i> ${obj.addr1}</div>
+				// 					</div>
+				// 				</div>
+				// 			</div>`; // ${JSON.stringify(attrs[number]) }
+				results += `	<div class="course-name"> 관광코스 ${num} : <span>${obj.type ? obj.type : ""}</span></div>
+								<div class="locale-box">
+									<img src=${imgURL} >
+									<div class="locale-box-disc">
+										<div class="locale-box-disc-title">${obj.title}</div>
+										<div class="locale-box-disc-addr">${obj.sTime} ~</div>
+										<div class="locale-box-disc-addr">	${obj.eTime}</div>
+									</div>
+								</div>
+							</div>`;
+				pdata.push({"lng": obj.x, "lat": obj.y, "parent": "reco_locale"}); //pdata에 관광지(음식점) 정보 넣음
+			}
+			document.getElementById("reco_step_locale_course").innerHTML = results;
+			document.getElementById("reco_step_locale_course_day1").style.display = "block";
+			// for(let j = 0; j < 5; j++){
+			// 	let word = course.course[number - 1]; //관광지+음식점
+			// 	pdata.push({"lng" : word.mapx, "lat" : word.mapy, "parent" : "reco_locale"}); //pdata에 관광지(음식점) 정보 넣음
+			// 	results += `<div id="courselist${number}" class="course-list" onclick="sendText('${number}번')">`; //관광지(+음식점) 선택시
+			//
+			// 	if([1, 4].indexOf(j) > -1) { //j가 1 혹은 4 라면, number 가 2, 5번째 일 때(점심 저녁)
+			// 		results += `<div id="locale_circle${number}" class="locale-circle restaurant">
+			// 						<div class="result-number"> ${number} </div>
+			// 					</div>`;
+			// 		if(j === 1) {
+			// 		results += `<div class="course-name"> 점심코스 : <span>${word.type ? word.type : ""}</span></div>`; //word.type == 한식
+			// 		} else {
+			// 		results += `<div class="course-name"> 저녁코스 : <span>${word.type ? word.type : ""}</span></div>`;
+			// 		}
+			// 	} else { //그냥 관광지일 경우
+			// 		results += `<div id="locale_circle${number}" class="locale-circle">
+			// 						<div class="result-number"> ${number} </div>
+			// 					</div>
+			// 					<div class="course-name"> 관광코스 ${days.shift()} : <span>${word.type ? word.type : ""}</span></div>`;
+			// 	}
+			// 	let imgURL = word.firstimage ? replaceimage(word.firstimage) : "./img/icon/noimage.png";
+			// 		results += `<div class="locale-box">
+			// 						<div class="locale-box-img"><img src="${imgURL}"/></div>
+			// 						<div class="locale-box-disc">
+			// 							<div class="locale-box-disc-title">${word.title}</div>
+			// 							<div class="locale-box-disc-addr"><i class='fas fa-map-marker-alt'></i> ${word.addr1}</div>
+			// 						</div>
+			// 					</div>
+			// 				</div>`;
+			// }
+			// results += `</div>`;}
 		}
+		console.log("pdata >>> " + pdata);
+		document.getElementById("reco_step_locale_tmapview").innerHTML = "";
+		info_result_map(pdata, "reco_step_locale_tmapview", "auto", "16%");
+
+		document.querySelectorAll(".day2").forEach(word => word.style.display = "none");
+		console.log("day2 veiled");
+		document.querySelectorAll(".day3").forEach(word => word.style.display = "none");
+		console.log("day3 veiled");
+		console.log(`코스 일정 : ${quote.days}일`);
+
+		const count = 1;
+		let index = 0;
+
+		const infoResultList = document.getElementById("reco_step_locale_course");
+
+		async function loadItems() {
+			console.log("start with >>> " + index);
+			// 화면 표시 및 얼마나 표시되었는지 플래그 숫자 올리기
+			let temp = index + count > quote.days ? quote.days : index + count;
+			console.log(`몇번째 날 = ${temp}`);
+
+			document.querySelectorAll(`.day${temp}`).forEach(element => element.style.display = "block");
+			console.log(`day ${temp} unveiled`);
+
+			index += count;
+
+			const ioOptions = {
+				root: null, //document.querySelector('.container'), // .container class를 가진 엘리먼트를 root로 설정. null일 경우 브라우저 viewport
+				rootMargin: '20px', // rootMargin을 '10px 10px 10px 10px'로 설정
+				threshold: 0.5 // target이 root에 진입시 : 0, root에 target의 50%가 있을 때 : 0.5, root에 target의 100%가 있을 때 : 1.0
+			}
+			const io = new IntersectionObserver((entries, observer) => {
+				entries.forEach(async (entry) => {
+					if (entry.isIntersecting) { //entry.intersectionRatio > 0
+						if (!infoResultList.querySelector(".loading-spinner")) {
+							infoResultList.innerHTML += `<div class="loading-spinner"></div>`;
+							setTimeout(async () => {
+								loadItems();
+								observer.unobserve(entry.target);
+								const spinner = infoResultList.querySelector(".loading-spinner");
+								spinner.parentNode.removeChild(spinner);
+								console.log("removed")
+							}, 260);
+						}
+					}
+				});
+			}, ioOptions)
+
+			if (quote.days > temp) {
+				console.log(`현재 temp = ${temp}`);
+				const infoResultLastItem = document.querySelector(`#lazy_border`);
+				io.observe(infoResultLastItem);
+			}
+		}
+		loadItems();
+	}else{
+		// document.getElementById("reco_step_locale_course").innerHTML = "추천 코스가 검색되지 않습니다.";
+		document.querySelector("#reco_step_locale_course_subject").innerHTML = "추천 코스가 검색되지 않습니다.";
 	}
-	loadItems();
-	document.getElementById("reco_step_locale_tmapview").innerHTML = "";
-	info_result_map(pdata, "reco_step_locale_tmapview", "auto", "16%");
 }
+/** 추천코스 상세화면 */
 const reco_step_detail_view = (data) => {
 	console.log("실행 : reco_detail_view()"); // {"reco_number":2,"command":"RECO_STEP_DETAIL","previous":"RECO_STEP_LOCALE"}
-	console.log(resultidreco_info);
+	console.log(resultidreco_info); //숙소인경우 undefined
 	hideall();
 
-	if (data.sleep === "숙소") resultidinfo = resultidreco_info.acco;
-	else resultidinfo = resultidreco_info.course;
+	if (data.sleep === "숙소") {} //resultidinfo = resultidreco_info.acco;
+	else resultidinfo = resultidreco_info; //.course;
 
 	const detail_data = {...data, "reco_detail" : true, "info_number" : data.reco_number}
 	drawDetail(detail_data);
