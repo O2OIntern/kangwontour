@@ -853,8 +853,7 @@ const reco_step_locale_view = async (data, rerun = false) => {
 
 	// let days = [...Array(9).keys()].map(word => word + 1); //왜 Array(9) ????????????? => [1, 2, 3, ... , 9]
 
-	// T맵실행
-	//document.getElementById("getNavigation").setAttribute("onclick", `goToPage('${course.tmaplink}')`);
+
 	const jsonData = JSON.parse(data.scheduledData);
 	let attrs = jsonData.course[0].locations;
 	console.log("리졀트1 >>>> " + JSON.stringify(attrs));
@@ -881,32 +880,16 @@ const reco_step_locale_view = async (data, rerun = false) => {
 
 		let results = "", pdata = [], num = 0;
 		for (let i=0; i < quote.days; i++) { //여행 기간> 2박3일=3, 1박2일=2, 당일치기=1
-			// if(i === 0) {//수직 방향 회색 라인
-			// 	results += `<div id="reco_step_locale_course_day1" class="locale_day day1">
-			// 					<div class="verticalLine"></div>`;
-			// } else if (i === 1) { //중간에 둘째날 출력
-			// 	results += `	<div id="locale_day2" class="day_divider day1" onclick="openDay(2)">
-			// 						<div class="horizontalLine left"></div>둘째날 <span><i class="fas fa-angle-double-down"></i></span>
-			// 						<div class="horizontalLine right"></div>
-			// 					</div><div id="reco_step_locale_course_day2" class="locale_day day2">
-			// 					<div class="verticalLine"></div>`;
-			// } else { //셋째날 출력
-			// 	results += `	<div id="locale_day3" class="day_divider day2" onclick="openDay(3)">
-			// 					<div class="horizontalLine left"></div>셋째날 <span><i class="fas fa-angle-double-down"></i></span>
-			// 						<div class="horizontalLine right"></div>
-			// 					</div>
-			// 					<div id="reco_step_locale_course_day3" class="locale_day day3"><div class="verticalLine">
-			// 				</div>`;
-			// }
+
 			if (i === 0) {//수직 방향 회색 라인
 				results += `<div id="reco_step_locale_course_day1" class="locale_day day1">`;
 			} else if (i === 1) { //중간에 둘째날 출력
 				results += `	<div id="locale_day2" class="day_divider day1" onclick="openDay(2)">
-									<div class="horizontalLine left"></div>둘째날 <span><i class="fas fa-angle-double-down"></i></span>
+									<div class="horizontalLine left"></div>
+									둘째날 <span><i class="fas fa-angle-double-down"></i></span>
 									<div class="horizontalLine right"></div>
 								</div>
-								<div id="reco_step_locale_course_day2" class="locale_day day2">
-								`;
+								<div id="reco_step_locale_course_day2" class="locale_day day2">`;
 			} else { //셋째날 출력
 				results += `	<div id="locale_day3" class="day_divider day2" onclick="openDay(3)">
 									<div class="horizontalLine left"></div>
@@ -927,7 +910,12 @@ const reco_step_locale_view = async (data, rerun = false) => {
 				++num;
 
 				resultidreco_info.push(obj); //상세페이지 표시를 위한 전역변수
-
+				if(num==1){
+					//코스의 첫번째 관광지 tmaplink 넘겨줌
+					let tmaplink = `https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxef0befba10d74637b27b8d7a8acdd7aa&name=${obj.title}&lon=${obj.x}&lat=${obj.y}`;
+					// T맵실행
+					document.getElementById("getNavigation").setAttribute("onclick", `goToPage('${tmaplink}')`);
+				}
 				//let number = i*maxCnt + ();
 				const imgURL = obj.placeImageUrl || obj.placeImageUrl != "null" ? replaceimage(obj.placeImageUrl) : "./img/icon/noimage.png";
 				const typeClass = "";// j == 2 || j == 5 ? "restaurant" : "";
