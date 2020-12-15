@@ -2,48 +2,44 @@ const servicekey = "t8eVLHdshDqoVX%2FO9rQO8d35XQQ5jIQGT3rmN9ewouc3GqjS05eMLm7Cx8
 
 const places = ['강릉', '고성', '동해', '삼척', '속초', '양구', '양양', '영월', '원주', '인제', '정선', '철원', '춘천', '태백', '평창', '홍천', '화천', '횡성'];
 
-const dblink =
-    // "https://banana.o2o.kr/kangwontour/"
-    "https://actions.o2o.kr/devsvr10/"
+const dblink = "https://actions.o2o.kr/devsvr9/"; // "https://banana.o2o.kr/kangwontour/"
 
 let barHeight;
 
 function hideall() {
-    var classes = document.getElementsByClassName("view");
-    var classes1 = document.getElementsByClassName("background");
-    var classes2 = document.getElementsByClassName("info");
-    var classes3 = document.getElementsByClassName("recommended");
-    var classes4 = document.getElementsByClassName("recommended2");
-    var classes5 = document.getElementsByClassName("option");
+    const classes = document.getElementsByClassName("view");
+    const classes1 = document.getElementsByClassName("background");
+    const classes2 = document.getElementsByClassName("info");
+    const classes3 = document.getElementsByClassName("recommended");
+    const classes4 = document.getElementsByClassName("recommended2");
+    const classes5 = document.getElementsByClassName("option");
 
     document.getElementById("startImage").style.display = "none";
     // var classes2 = document.getElementsByClassName( "textfield" );
-    for (var i = 0; i < classes.length; i++) {
+    for (let i = 0; i < classes.length; i++)
         classes[i].style.display = "none";
-    }
-    for (var i = 0; i < classes1.length; i++) {
-        classes1[i].style.display = "none";
-    }
-    for (var i = 0; i < classes2.length; i++) {
-        classes2[i].style.display = "none";
-    }
-    for (var i = 0; i < classes3.length; i++) {
-        classes3[i].style.display = "none";
-    }
-    for (var i = 0; i < classes4.length; i++) {
-        classes4[i].style.display = "none";
-    }
-    for (var i = 0; i < classes5.length; i++) {
-        classes5[i].style.display = "none";
-    }
-    document.querySelectorAll(".view_full").forEach( item => item.style.display = "none");
 
+    for (let i = 0; i < classes1.length; i++)
+        classes1[i].style.display = "none";
+
+    for (let i = 0; i < classes2.length; i++)
+        classes2[i].style.display = "none";
+
+    for (let i = 0; i < classes3.length; i++)
+        classes3[i].style.display = "none";
+
+    for (let i = 0; i < classes4.length; i++)
+        classes4[i].style.display = "none";
+
+    for (let i = 0; i < classes5.length; i++)
+        classes5[i].style.display = "none";
+
+    document.querySelectorAll(".view_full").forEach( item => item.style.display = "none");
     console.log("hideall() activated");
 }
-
 /* "info" class에 해당하는 모든 div 숨기기 => 삭제예정
 function hideall_info() {
-	var infoClasses = document.getElementsByClassName("info");
+	const infoClasses = document.getElementsByClassName("info");
 	for (var i = 0; i < infoClasses.length; i++) {
 		infoClasses[i].style.display = 'none';
 		console.log("hided : " + infoClasses[i].id);
@@ -55,14 +51,8 @@ async function headerHeight(){
     this.scene = scene;
     const that = this;
 
-    let headerheight;
-
-    await that.canvas.getHeaderHeightPx().then(data => {
-        console.log(`Bar Height : ${data}`);
-        headerheight = data;
-    });
-    console.log(headerheight);
-
+    const headerheight = await that.canvas.getHeaderHeightPx();
+    console.log(`Bar Height : ${headerheight}`);
     return headerheight;
 }
 
@@ -205,125 +195,9 @@ function sendText(keyword) { console.log("click sendText")
     that.canvas.sendTextQuery(keyword);
 }
 
-/**
- * TourAPI로 json을 호출하는 함수
- * @param {string} kind API 종류 {"지역검색", "주변검색", "이름검색", "상세정보1", "상세정보2", "상세정보3", "상세정보4"}
- * @param {string} arrangeType 정렬 방식 결정 {"제목순", "조회순", "수정일순", "생성일순", "거리순"(주변검색 한정)}
- * @param {object} data java Fulfillment에서 전해주는 data
- * @param {object} detaildata {contentid, contenttypeid}
- * @param {int} radius 주변검색시 검색할 최대 거리 (주변검색 한정)
- *
- * @returns API 호출로 불러온 json 데이터
- */
-// function tourAPI(kind, arrangeType, data, detaildata = undefined, radius = 2000) {
-//     let apiType; // API 종류 결정
-//     let contentTypeId;
-//     let longitude; // mapx (주변검색 한정)
-//     let latitude; // mapy (주변검색 한정)
-//     let sigunguCode;
-//     let searchWord; // 검색어 (이름검색 한정)
-//     let arrange; // 정렬 방식 결정
-//     let contentId;
-//     let url; // API 요청을 보낼 주소
-//     let result; // return할 값을 저장할 변수
-//
-//     //data를 통해 contentTypeId, sigunguCode 결정
-//     if (detaildata) contentTypeId = detaildata.contenttypeid;
-//     else contentTypeId = datatype(data);
-//     sigunguCode = dataplace(data.place);
-//     //data를 통해 longitude, latitude 결정
-//     if (data.lon && data.lat) {
-//         longitude = data.lon;
-//         latitude = data.lat;
-//     }
-//     //arrange 결정
-//     switch (arrangeType) {
-//         case ("제목순"):
-//         case ("1"):
-//         case ("A"):
-//             arrange = "A";
-//             break;
-//         case ("조회순"):
-//         case ("인기순"):
-//         case ("2"):
-//         case ("B"):
-//             arrange = "B";
-//             break;
-//         case ("수정일순"):
-//         case ("최근수정순"):
-//         case ("3"):
-//         case ("C"):
-//             arrange = "C";
-//             break;
-//         case ("생성일순"):
-//         case ("등록순"):
-//         case ("4"):
-//         case ("D"):
-//             arrange = "D";
-//             break;
-//         case ("거리순"):
-//         case ("5"):
-//         case ("E"):
-//             if (kind === `주변검색` || kind == '2') arrange = "E";
-//             break;
-//         default:
-//             arrange = "B";
-//     }
-//     if (detaildata) {
-//         contentTypeId = detaildata.contenttypeid;
-//         contentId = detaildata.contentid;
-//     }
-//     //검색어 결정
-//     if (kind === `이름검색` || kind == '3') searchWord = data.any;
-//     //apiType 결정
-//     switch (kind) {
-//         case ("주변검색"):
-//         case ("2"):
-//             apiType = `locationBasedList?ListYN=Y&mapX=${longitude}&mapY=${latitude}&contentTypeId=${contentTypeId}&radius=${radius}`;
-//             break;
-//         case ("이름검색"):
-//         case ("3"):
-//             apiType = `searchKeyword?ListYN=Y&keyword=${searchWord}&sigunguCode=${sigunguCode}`;
-//             break;
-//         case ("상세정보1"):
-//         case ("4"):
-//             apiType = `detailCommon?defaultYN=Y&firstImageYN=Y&areacodeYN=Y&catcodeYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y&contentId=${contentId}`;
-//             break;
-//         case ("상세정보2"):
-//         case ("5"):
-//             apiType = `detailIntro?contentId=${contentId}&contentTypeId=${contentTypeId}`;
-//             break;
-//         case ("상세정보3"):
-//         case ("6"):
-//             apiType = `detailInfo?contentId=${contentId}&contentTypeId=${contentTypeId}`;
-//             break;
-//         case ("상세정보4"):
-//         case ("7"):
-//             apiType = `detailImage?contentId=${contentId}&imageYN=Y`;
-//             break;
-//         case ("지역검색"):
-//         case ("1"):
-//         default:
-//             apiType = `areaBasedList?ListYN=Y&sigunguCode=${sigunguCode}&contentTypeId=${contentTypeId}`;
-//     } // 공통 :
-//     //API 호출
-//     url = `http://api.visitkorea.or.kr/openapi/service/rest/KorService/${apiType}&ServiceKey=${servicekey}&arrange=${arrange}&areaCode=32&MobileOS=ETC&MobileApp=TourAPI3.0_Guide&numOfRows=10000&pageNo=1&_type=json`;
-//     // url = `https://actions.o2o.kr/devsvr10/tourapi`;
-//     result = fetch(url).then((response) => response.json());
-//     //json 데이터 return
-//     console.log(url);
-//     console.log(result);
-//     return result;
-// }
-
 function tourAPI(kind, data, detaildata = undefined) {
-    let contentType;
-    let cat3;
-    let sigunguCode;
-    let searchWord; // 검색어 (이름검색 한정)
+    let contentType, cat3, sigunguCode, searchWord; // 검색어 (이름검색 한정)
     let contentId;
-    let url; // API 요청을 보낼 주소
-    let result; // return할 값을 저장할 변수
 
     if (data.cat3) {
         cat3 = putsmalltype(data)[0]
@@ -348,11 +222,10 @@ function tourAPI(kind, data, detaildata = undefined) {
         }
     }
 
-    sigunguCode = dataplace(data.place);
+    if(data.place) sigunguCode = dataplace(data.place);
 
-    if (detaildata) {
-        contentId = detaildata.contentid;
-    }
+    if (detaildata && detaildata.contentid) contentId = detaildata.contentid;
+    else if(detaildata && detaildata.idx) contentId = detaildata.idx;
 
     //검색어 결정
     // if (kind === `이름검색`) searchWord = data.any;
@@ -372,40 +245,37 @@ function tourAPI(kind, data, detaildata = undefined) {
         }
     }
 
-    //apiType 결정
+    let url, result; // return할 값을 저장할 변수
     switch (kind) {
         case ("이름검색"):
-            url = `https://actions.o2o.kr/devsvr10/findtoruapi?title=${searchWord}`;
+            url = `${dblink}findtoruapi?title=${searchWord}`;
             break;
         case ("상세정보"):
-            url = `https://actions.o2o.kr/devsvr10/finddetailinfo?contentid=${contentId}`;
+            url = `${dblink}finddetailinfo?contentid=${contentId}`;
             break;
         case ("지역검색"):
-            if (data.cat3) url = `https://actions.o2o.kr/devsvr10/findcat3?cat3=${cat3}&sigungucode=${sigunguCode}`;
-            else url = `https://actions.o2o.kr/devsvr10/findcategory?category=${contentType}&sigungucode=${sigunguCode}`;
+            if (data.cat3) url = `${dblink}findcat3?cat3=${cat3}&sigungucode=${sigunguCode}`;
+            else url = `${dblink}findcategory?category=${contentType}&sigungucode=${sigunguCode}`;
             break;
         case ("재검색"):
-            url = `https://actions.o2o.kr/devsvr10/findcategory?category=${contentType}&sigungucode=${sigunguCode}`;
+            url = `${dblink}findcategory?category=${contentType}&sigungucode=${sigunguCode}`;
             break;
         case ("추천코스"):
-            url = `https://actions.o2o.kr/devsvr10/findsigungucode?sigungucode=${sigunguCode}`;
+            url = `${dblink}findsigungucode?sigungucode=${sigunguCode}`;
             break;
         default:
-            url = `https://actions.o2o.kr/devsvr10/tourapi`;
-    } // 공통 :
-    //API 호출
+            url = `${dblink}tourapi`;
+    }
     result = fetch(url).then( response => response.json());
-    //json 데이터 return
-    console.log(url);
-    console.log(result);
+    console.log(`${url} >>>\n${JSON.stringify(result)}`);
     return result;
 }
 
-var endtimer;
+let endtimer;
 
 //종료모달 화면 count down
 function start() {
-    var timeleft = 3;
+    let timeleft = 3;
     document.getElementsByClassName("modal")[0].innerHTML =
         `<img id="end_image" src="./img/p18.png" usemap="#end-map" width="1041" height="1404"></img>
 		<map name="end-map">			
@@ -418,7 +288,7 @@ function start() {
     });
 
     document.getElementById('endImage').style.display = "table";
-    endtimer = setInterval(function () {
+    endtimer = setInterval(() => {
         //	document.getElementById( 'endText' ).innerHTML = timeleft;
         document.getElementById("end_image").setAttribute("src", `./img/end${timeleft}.png`);
         timeleft -= 1;
@@ -455,35 +325,8 @@ function dataplace(data) {
     return place; //코드 리턴
 }
 
-// function datacourse(data) {
-//     var course;
-//     switch (data) {
-//         case ("가족코스"):
-//             course = "C0112";
-//             break;
-//         case ("나홀로코스"):
-//             course = "C0113";
-//             break;
-//         case ("힐링코스"):
-//             course = "C0114";
-//             break;
-//         case ("도보코스"):
-//             course = "C0115";
-//             break;
-//         case ("캠핑코스"):
-//             course = "C0116";
-//             break;
-//         case ("맛코스"):
-//             course = "C0117";
-//             break;
-//         default:
-//             course = "";
-//     }
-//     return course;
-// }
-
 function datatype(data) {
-    var type;
+    let type = "";
     switch (data.type) {
         case ("관광지"):
             switch (data.tour) {
@@ -519,24 +362,24 @@ function datatype(data) {
         case ("음식점"):
             type = "39";
             break;
-        default:
-            type = "";
     }
     return type;
 }
 
 function datalink(data) {
     let linkURL;
-    switch (data) {
-        case ("인스타그램"):
-            let instaTag = linkKeyword.split(' ')[0];
-            // linkURL = "https://www.instagram.com/explore/tags/";
-            linkURL = "instagram://tag?name="+instaTag;
-            break;
-        case ("유튜브"):
+    // switch (data) {
+    //     case ("인스타그램"):
+    if(data == "인스타그램") {
+        let instaTag = linkKeyword.split(' ')[0];
+        // linkURL = "https://www.instagram.com/explore/tags/";
+        linkURL = "instagram://tag?name=" + instaTag;
+        // break;
+    // case ("유튜브"):
+    } else if(data == "인스타그램") {
             // linkURL = "https://m.youtube.com/results?search_query=";
             linkURL = "vnd.youtube://m.youtube.com/results?search_query="+linkKeyword;
-            break;
+            // break;
     }
     // window.location.href=linkURL; // 외부 링크 연결
     document.getElementById('externalframe').setAttribute('src', linkURL); // iframe external link
@@ -548,7 +391,7 @@ function datalink(data) {
  * @param {*} data Fulfillment에서 받아오는 데이터 묶음
  */
 function putsmalltype(data) {
-    var typevalues = [];
+    let typevalues = [];
     // console.log(`putsmalltype : ${type}, ${JSON.stringify(data)}`);
 
     //오늘 날짜를 받아 하계/동계 구분
@@ -565,12 +408,10 @@ function putsmalltype(data) {
            typevalues.push("B02010300");
            typevalues.push("B02010400");
            typevalues.push("B02011500");
-       }
-        else if (data.sleep === "콘도") {
+       } else if (data.sleep === "콘도") {
            typevalues.push("B02010500");
            typevalues.push("B02010600");
-       }
-        else if (data.sleep === "모텔") {
+       } else if (data.sleep === "모텔") {
            typevalues.push("B02010800");
            typevalues.push("B02010900");
        }
@@ -692,8 +533,7 @@ function putsmalltype(data) {
             typevalues.push("A02020700"); //공원
         }
 
-    }
-    else if (data.tour) {
+    } else if (data.tour) {
         //} else if (type == "28"){ // 액티비티 == 레포츠
         if (data.tour === "액티비티") {
             // console.log("putsmalltype : 액티비티");
@@ -715,9 +555,7 @@ function putsmalltype(data) {
                 typevalues.push("A03021300"); //스케이트
                 typevalues.push("A03021400"); //썰매장
             }
-        }
-
-        else if (data.tour === "전통") {
+        } else if (data.tour === "전통") {
             // console.log("putsmalltype : 전통");
             typevalues.push("A02030200"); //전통체험
             typevalues.push("A02030300"); //산사체험
@@ -1093,17 +931,15 @@ function info_map(pdata, id) {
     console.log("info_map() start");
     // map 생성
     // Tmapv2.Map을 이용하여, 지도가 들어갈 div, 넓이, 높이를 설정합니다.
-    var info_map = new Tmapv2.Map(id, // "map_div" : 지도가 표시될 div의 id
-        {
-            // center: new Tmapv2.LatLng(37.79135410000000,127.525541800000000), // 지도 초기 좌표
-            center: new Tmapv2.LatLng(pdata.Lat, pdata.Lng), // 지도 초기 좌표
-            width: "100%", // map의 width 설정
-            height: "17rem", // map의 height 설정
-            httpsMode: true // map의 https 모드 설정
-        });
+    const info_map = new Tmapv2.Map(id, {// "map_div" : 지도가 표시될 div의 id
+        // center: new Tmapv2.LatLng(37.79135410000000,127.525541800000000), // 지도 초기 좌표
+        center: new Tmapv2.LatLng(pdata.Lat, pdata.Lng), // 지도 초기 좌표
+        width: "100%", // map의 width 설정
+        height: "17rem", // map의 height 설정
+        httpsMode: true // map의 https 모드 설정
+    });
     //Marker 객체 생성.
-    var marker = new Tmapv2.Marker({
-        // position: new Tmapv2.LatLng(37.79135410000000,127.525541800000000),
+    const marker = new Tmapv2.Marker({
         position: new Tmapv2.LatLng(pdata.Lat, pdata.Lng),
         map: info_map,
     });
@@ -1116,21 +952,18 @@ function info_map(pdata, id) {
  */
 function info_result_map(pdata, id, width = '100%', height = '17rem') {
     console.log(`info_result_map() start`);
-    var markers = [];
-    var positions = [];
+    let markers = [], positions = [];
     function addMarker(status, lon, lat, tag, parent) {
-        var imgURL;
-        // console.log(`status : ↓↓`);
+        let imgURL;
         // console.log(parent);
         if (parent === 'info_result'){
             if (status === 'red') imgURL = "https://actions.o2o.kr/content/kangwontour/img/marker/pin_r.png";
             else imgURL = `https://actions.o2o.kr/content/kangwontour/img/marker/pin_b.png`;
-        }
-        else if (parent === 'reco_locale'){
+        } else if (parent === 'reco_locale'){
             if(tag < 15) imgURL = `https://actions.o2o.kr/content/kangwontour/img/marker/pin_b_m_${tag + 1}.png`;
             else imgURL = `https://actions.o2o.kr/content/kangwontour/img/marker/pin_b.png`;
         }
-        var marker = new Tmapv2.Marker({
+        const marker = new Tmapv2.Marker({
             position: new Tmapv2.LatLng(lat, lon),
             icon: imgURL,
             map: result_map,
@@ -1138,7 +971,7 @@ function info_result_map(pdata, id, width = '100%', height = '17rem') {
         // console.log(`tag : ${tag}, lon : ${lon}, lat : ${lat}`);
         marker.addListener("click", function (evt) {
             //선택되지 않은 리스트, 마커 색깔 원래 것으로 바꾸기
-            for (var i = 0; i < pdata.length; i++) {
+            for (let i = 0; i < pdata.length; i++) {
                 document.getElementById(`info_result-circle${i}`).style.backgroundColor = "#ffffff";
                 document.getElementById(`resultlist${i}`).style.backgroundColor = "#ffffff";
                 removeMarkers();
@@ -1151,14 +984,14 @@ function info_result_map(pdata, id, width = '100%', height = '17rem') {
         })
         return marker;
     }
-    var result_map = new Tmapv2.Map(id, {
+    const result_map = new Tmapv2.Map(id, {
         center: new Tmapv2.LatLng(pdata[0].lat, pdata[0].lng),
         width: width,
         height: height,
         httpsMode: true,
     });
-    var addMarkers = function (tag) {
-        for (let i = 0; i < pdata.length; i++) {
+    const addMarkers = (tag) => {
+        for (let i=0; i < pdata.length; i++) {
             let items;
             if (i === tag) {
                 markers.push(addMarker('red', pdata[i].lng, pdata[i].lat, i, pdata[i].parent));
@@ -1170,14 +1003,14 @@ function info_result_map(pdata, id, width = '100%', height = '17rem') {
         }
     }
     addMarkers(-1);
-    var removeMarkers = function () {
-        for (var i = 0; i < markers.length; i++) {
+    const removeMarkers = () => {
+        for (let i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
         }
         markers = [];
     }
     console.log(positions);
-    var PTbounds = new Tmapv2.LatLngBounds();
+    const PTbounds = new Tmapv2.LatLngBounds();
     for (let i = 0; i < positions.length; i++) {
         PTbounds.extend(positions[i]);
     }
@@ -1209,28 +1042,23 @@ function getQuote(data) {
         quote.question_two = data.question_two;
         quote.tag = data.question_two;
         quote.acco = "가성비";
-    }
-    else if(data.question_two === "욜로") {
+    } else if(data.question_two === "욜로") {
         quote.question_two = "여유롭게";
         quote.tag = data.question_two;
         quote.acco = "가심비";
-    }
-    else if(data.question_two === "혼자") {
+    } else if(data.question_two === "혼자") {
         quote.question_two = "나홀로";
         quote.acco = "혼자 머물기";
         quote.tag = "나홀로여행";
-    }
-    else if(data.question_two === "친구들과") {
+    } else if(data.question_two === "친구들과") {
         quote.question_two = "친구랑";
         quote.acco = "친구랑 머물기";
         quote.tag = "우정여행";
-    }
-    else if(data.question_two === "가족이랑") {
+    } else if(data.question_two === "가족이랑") {
         quote.question_two = data.question_two;
         quote.acco = data.question_two + " 머물기";
         quote.tag = "가족여행";
-    }
-    else {
+    } else {
         quote.question_two = data.question_two;
         quote.acco = data.question_two + " 머물기";
         quote.tag = "커플여행";
@@ -1239,15 +1067,13 @@ function getQuote(data) {
     if(data.question_three === "2박3일") {
         quote.question_three = "장기여행";
         quote.days = 3;
-    }
-    else {
+    } else {
         quote.question_three = data.question_three;
         if(data.question_three === "1박2일") quote.days = 2;
         else quote.days = 1;
     }
 
     if(data.place) quote.place = data.place.substring(0, 2);
-
     return quote;
 }
 
