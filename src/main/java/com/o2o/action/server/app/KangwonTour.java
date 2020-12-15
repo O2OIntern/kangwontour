@@ -4,17 +4,12 @@ import com.google.actions.api.*;
 import com.google.actions.api.response.*;
 import com.google.actions.api.response.helperintent.*;
 import com.google.api.services.actions_fulfillment.v2.model.*;
-import com.google.gson.reflect.TypeToken;
 import com.o2o.action.server.db.KtourApi;
 import com.o2o.action.server.repo.KtourapiRepository;
 import com.o2o.action.server.util.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -960,8 +955,7 @@ public class KangwonTour extends DialogflowApp {
   }
 
   @ForIntent("actions_intent_CANCEL")
-  public ActionResponse intentActionsIntentCancel(ActionRequest request)
-      throws ExecutionException, InterruptedException {
+  public ActionResponse intentActionsIntentCancel(ActionRequest request) throws ExecutionException, InterruptedException {
     ResponseBuilder rb = getResponseBuilder(request);
     Map<String, Object> webdata = new HashMap<>();
     rb.getConversationData().remove("fallback");
